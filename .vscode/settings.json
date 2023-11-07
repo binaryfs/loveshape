@@ -1,0 +1,9 @@
+{
+    "[lua]": {
+        "editor.tabSize": 2
+    },
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.workspace.library": [
+        "${3rd}/love2d/library"
+    ]
+}
