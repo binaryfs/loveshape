@@ -7,6 +7,7 @@ local rect
 local roundedRect
 local circle
 local convex
+local transform
 
 function love.load()
   rect = Rectangle.new(200, 100)
@@ -27,11 +28,19 @@ function love.load()
   convex:setFillColor(1, 0, 0)
   convex:setBorderWidth(5)
   convex:setPoint(1, 0, -20):setPoint(2, 20, 30):setPoint(3, -20, 50)
+
+  transform = love.math.newTransform(200, 250, 45)
+end
+
+function love.update(dt)
+  transform:rotate(dt)
 end
 
 function love.draw()
   rect:draw(100, 100)
   circle:draw(400, 100)
   roundedRect:draw(50, 400)
-  convex:draw(200, 200)
+  convex:draw(transform)
+  local x, y, w, h = convex:getTransformedBounds(transform)
+  love.graphics.rectangle("line", x, y, w, h)
 end

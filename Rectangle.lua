@@ -48,7 +48,7 @@ function Rectangle:setWidth(width)
 
   if self._width ~= width then
     self._width = width
-    self._dirtyMesh = true
+    self._dirty = true
   end
 
   return self
@@ -61,7 +61,7 @@ function Rectangle:setHeight(height)
 
   if self._height ~= height then
     self._height = height
-    self._dirtyMesh = true
+    self._dirty = true
   end
 
   return self

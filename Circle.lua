@@ -41,7 +41,7 @@ function Circle:setRadius(radius)
 
   if self._radius ~= radius then
     self._radius = radius
-    self._dirtyMesh = true
+    self._dirty = true
   end
 
   return self

@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+local Bounds = require(BASE .. "Bounds")
 local Color = require(BASE .. "Color")
 local utils = require(BASE .. "utils")
 
@@ -14,8 +15,9 @@ local lg = love.graphics
 --- @field protected _borderMesh love.Mesh?
 --- @field protected _borderWidth number
 --- @field protected _borderColor loveshape.Color
---- @field protected _dirtyMesh boolean
---- @field protected _dirtyBorder boolean
+--- @field protected _dirty boolean
+--- @field protected _bounds loveshape.Bounds
+--- @field protected _innerBounds loveshape.Bounds
 local Shape = {}
 Shape.__index = Shape
 
@@ -28,8 +30,9 @@ function Shape:_init(vertexCount)
   self._borderMesh = nil
   self._borderWidth = 0
   self._borderColor = Color.new(1, 1, 1)
-  self._dirtyMesh = true
-  self._dirtyBorder = true
+  self._dirty = true
+  self._bounds = Bounds.new()
+  self._innerBounds = Bounds.new()
 end
 
 --- @param r number
@@ -79,7 +82,7 @@ function Shape:setBorderWidth(width)
 
   if self._borderWidth ~= width then
     self._borderWidth = width
-    self._dirtyBorder = true
+    self._dirty = true
   end
 
   return self
@@ -107,6 +110,45 @@ function Shape:getPointsCount()
   return self._mesh:getVertexCount()
 end
 
+--- Get the axis-aligned bounding rectangle enclosing the shape.
+--- @return number x
+--- @return number y
+--- @return number width
+--- @return number height
+--- @nodiscard
+function Shape:getBounds()
+  self:_updateMeshes()
+  return self._bounds.minX, self._bounds.minY, self._bounds:getWidth(), self._bounds:getHeight()
+end
+
+--- Get the axis-aligned bounding rectangle enclosing the shape after applying
+--- the specified transform.
+---
+--- For optimization reasons the returned rectangle might be larger than the shape.
+--- It will never be smaller than the shape, though.
+--- @param transform love.Transform
+--- @return number x
+--- @return number y
+--- @return number width
+--- @return number height
+--- @nodiscard
+function Shape:getTransformedBounds(transform)
+  self:_updateMeshes()
+
+  local bx, by, bw, bh = self:getBounds()
+  local topLeftX, topLeftY = transform:transformPoint(bx, by)
+  local topRightX, topRightY = transform:transformPoint(bx + bw, by)
+  local bottomLeftX, bottomLeftY = transform:transformPoint(bx, by + bh)
+  local bottomRightX, bottomRightY = transform:transformPoint(bx + bw, by + bh)
+
+  local minX = math.min(topLeftX, topRightX, bottomLeftX, bottomRightX)
+  local minY = math.min(topLeftY, topRightY, bottomLeftY, bottomRightY)
+  local maxX = math.max(topLeftX, topRightX, bottomLeftX, bottomRightX)
+  local maxY = math.max(topLeftY, topRightY, bottomLeftY, bottomRightY)
+
+  return minX, minY, maxX - minX, maxY - minY
+end
+
 function Shape:draw(...)
   self:_updateMeshes()
   lg.draw(self._mesh, ...)
@@ -118,37 +160,40 @@ end
 
 --- @protected
 function Shape:_updateMeshes()
-  if self._dirtyMesh then
-    for vertex = 1, self._mesh:getVertexCount() do
-      self._mesh:setVertexAttribute(vertex, POSITION_INDEX, self:getPoint(vertex))
-    end
-
-    self:_updateFillColor()
-    self._dirtyMesh = false
-    self._dirtyBorder = true
+  if not self._dirty then
+    return
   end
 
+  self._innerBounds:reset()
+
+  for vertex = 1, self._mesh:getVertexCount() do
+    local x, y = self:getPoint(vertex)
+    self._mesh:setVertexAttribute(vertex, POSITION_INDEX, x, y)
+    self._innerBounds:addPoint(x, y)
+  end
+
+  self:_updateFillColor()
   self:_updateBorderMesh()
+  self._dirty = false
 end
 
 --- @protected
 function Shape:_updateBorderMesh()
-  if not self._dirtyBorder then
-    return
-  end
-
   if self._borderWidth == 0 then
     self._borderMesh = nil
-    self._dirtyBorder = false
+    self._bounds:copyFrom(self._innerBounds)
     return
   end
 
   local vertexCount = self._mesh:getVertexCount()
   local borderVertexCount = (vertexCount * 2) + 2
 
+  -- Create a new border mesh if necessary
   if self._borderMesh == nil or self._borderMesh:getVertexCount() ~= borderVertexCount then
     self._borderMesh = love.graphics.newMesh(borderVertexCount, "strip", "dynamic")
   end
+
+  self._bounds:reset()
 
   for vertex = 1, vertexCount do
     local previousVertex = vertex == 1 and vertexCount or vertex - 1
@@ -177,6 +222,7 @@ function Shape:_updateBorderMesh()
 
     self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx, vy)
     self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx - normalX, vy - normalY)
+    self._bounds:addPoint(vx - normalX, vy - normalY)
   end
 
   -- Close the border mesh loop.
@@ -192,7 +238,6 @@ function Shape:_updateBorderMesh()
   )
 
   self:_updateBorderColor()
-  self._dirtyBorder = false
 end
 
 --- @protected
