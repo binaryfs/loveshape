@@ -7,6 +7,7 @@
 local Bounds = {}
 Bounds.__index = Bounds
 
+--- Create a new bounds object with infinite dimensions.
 --- @return loveshape.Bounds
 --- @nodiscard
 function Bounds.new()
@@ -15,6 +16,36 @@ function Bounds.new()
   return self:reset()
 end
 
+--- @param minX number
+--- @param minY number
+--- @param maxX number
+--- @param maxY number
+--- @return self
+function Bounds:set(minX, minY, maxX, maxY)
+  self.minX = assert(minX, "minX required")
+  self.minY = assert(minY, "minY required")
+  self.maxX = assert(maxX, "maxX required")
+  self.maxY = assert(maxY, "maxY required")
+  return self
+end
+
+--- Get a rectangle of the bounds.
+--- @return number x
+--- @return number y
+--- @return number width
+--- @return number height
+--- @nodiscard
+function Bounds:getRect()
+  return self.minX, self.minY, self:getWidth(), self:getHeight()
+end
+
+--- @return boolean empty
+--- @nodiscard
+function Bounds:isEmpty()
+  return self.maxX < self.minX or self.maxY < self.minY
+end
+
+--- Reset the bounds to infinite dimensions.
 --- @return self
 function Bounds:reset()
   self.minX = math.huge

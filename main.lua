@@ -10,6 +10,9 @@ local convex
 local transform
 
 function love.load()
+  local wall = love.graphics.newImage("assets/wall.png")
+  wall:setWrap("repeat")
+
   rect = Rectangle.new(200, 100)
   rect:setFillColor(1, 1, 1, 1)
   rect:setBorderWidth(10)
@@ -23,6 +26,7 @@ function love.load()
   circle = Circle.new(50, 6)
   circle:setFillColor(0, 1, 0)
   circle:setBorderWidth(5)
+  circle:setTexture(wall, true)
 
   convex = ConvexPolygon.new(3)
   convex:setFillColor(1, 0, 0)

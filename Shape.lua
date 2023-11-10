@@ -4,6 +4,7 @@ local Color = require(BASE .. "Color")
 local utils = require(BASE .. "utils")
 
 local POSITION_INDEX = 1
+local UV_INDEX = 2
 local COLOR_INDEX = 3
 
 local lg = love.graphics
@@ -18,6 +19,7 @@ local lg = love.graphics
 --- @field protected _dirty boolean
 --- @field protected _bounds loveshape.Bounds
 --- @field protected _innerBounds loveshape.Bounds
+--- @field protected _textureQuad loveshape.Bounds?
 local Shape = {}
 Shape.__index = Shape
 
@@ -33,6 +35,7 @@ function Shape:_init(vertexCount)
   self._dirty = true
   self._bounds = Bounds.new()
   self._innerBounds = Bounds.new()
+  self._textureQuad = nil
 end
 
 --- @param r number
@@ -75,6 +78,7 @@ function Shape:getBorderColor()
   return self._borderColor:unpack()
 end
 
+--- Set the border width in pixels.
 --- @param width number
 --- @return self
 function Shape:setBorderWidth(width)
@@ -88,6 +92,7 @@ function Shape:setBorderWidth(width)
   return self
 end
 
+--- Get the border width in pixels.
 --- @return number width
 --- @nodiscard
 function Shape:getBorderWidth()
@@ -149,6 +154,65 @@ function Shape:getTransformedBounds(transform)
   return minX, minY, maxX - minX, maxY - minY
 end
 
+--- Get the texture that should be rendered on the shape.
+--- @return (love.Texture)?
+--- @nodiscard
+function Shape:getTexture()
+  return self._mesh:getTexture()
+end
+
+--- Set or unset the texture that should be rendered on the shape.
+---
+--- If the `setTextureQuad` parameter is set, the texture coordinates of the mesh will
+--- be updated accordingly. Otherwise you have to set them manually by calling the
+--- `Shape.setTextureQuad` method.
+--- @param texture love.Texture|nil
+--- @param setTextureQuad boolean? (default: false)
+--- @return self
+function Shape:setTexture(texture, setTextureQuad)
+  if texture then
+    self._mesh:setTexture(texture)
+
+    if setTextureQuad then
+      self:setTextureQuad(0, 0, texture:getDimensions())
+    end
+  else
+    self._mesh:setTexture()
+  end
+
+  return self
+end
+
+--- Set the texture area that should be rendered on the shape.
+--- @param x number
+--- @param y number
+--- @param width number
+--- @param height number
+--- @return self
+function Shape:setTextureQuad(x, y, width, height)
+  if not self._textureQuad then
+    self._textureQuad = Bounds.new()
+  end
+
+  self._textureQuad:set(x, y, x + width, y + height)
+  self:_updateTextureCoordinates()
+
+  return self
+end
+
+--- Get the texture area that should be rendered on the shape.
+--- @return integer x
+--- @return integer y
+--- @return integer width
+--- @return integer height
+--- @nodiscard
+function Shape:getTextureQuad()
+  if not self._textureQuad then
+    return 0, 0, 0, 0
+  end
+  return self._textureQuad:getRect()
+end
+
 function Shape:draw(...)
   self:_updateMeshes()
   lg.draw(self._mesh, ...)
@@ -174,6 +238,7 @@ function Shape:_updateMeshes()
 
   self:_updateFillColor()
   self:_updateBorderMesh()
+  self:_updateTextureCoordinates()
   self._dirty = false
 end
 
@@ -253,6 +318,28 @@ function Shape:_updateBorderColor()
     for vertex = 1, self._borderMesh:getVertexCount() do
       self._borderMesh:setVertexAttribute(vertex, COLOR_INDEX, self._borderColor:unpack())
     end
+  end
+end
+
+--- @protected
+function Shape:_updateTextureCoordinates()
+  local texture = self._mesh:getTexture()
+
+  if not texture or not self._textureQuad or self._innerBounds:isEmpty() then
+    return
+  end
+
+  local bx, by, bw, bh = self._innerBounds:getRect()
+  local qx, qy, qw, qh = self._textureQuad:getRect()
+
+  for vertex = 1, self._mesh:getVertexCount() do
+    local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
+
+    -- Calculate normalized texture coordinates
+    local u = (qx + qw * ((vx - bx) / bw)) / texture:getWidth()
+    local v = (qy + qh * ((vy - by) / bh)) / texture:getHeight()
+
+    self._mesh:setVertexAttribute(vertex, UV_INDEX, u, v)
   end
 end
 
