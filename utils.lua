@@ -63,4 +63,37 @@ function utils.vecCross(ax, ay, bx, by)
   return ax * by - ay * bx
 end
 
+--- Given two edges, compute the normal of their shared vertex.
+---
+--- This function expects the points in clockwise order.
+--- @param ax number X position of the starting point of the first edge
+--- @param ay number Y position of the starting point of the first edge
+--- @param bx number X position of the shared vertex
+--- @param by number Y position of the shared vertex
+--- @param cx number X position of the end point of the second edge.
+--- @param cy number Y position of the end point of the second edge.
+--- @param length number Desired length of the normal
+--- @return number normalX
+--- @return number normalY
+--- @nodiscard
+function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
+  -- Edges from a to b and b to c.
+  local edgeAx, edgeAy = utils.vecNormalize(bx - ax, by - ay)
+  local edgeBx, edgeBy = utils.vecNormalize(cx - bx, cy - by)
+
+  local crossProduct = utils.vecCross(edgeAx, edgeAy, edgeBx, edgeBy)
+  local normalX, normalY
+
+  if math.abs(crossProduct) > 1e-09 then
+    normalX = length * (edgeBx - edgeAx) / crossProduct
+    normalY = length * (edgeBy - edgeAy) / crossProduct
+  else
+    -- Special case when edge normals are almost perpendicular.
+    normalX = -(length * edgeBy)
+    normalY = length * edgeBx
+  end
+
+  return normalX, normalY
+end
+
 return utils

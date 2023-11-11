@@ -7,6 +7,9 @@ local POSITION_INDEX = 1
 local UV_INDEX = 2
 local COLOR_INDEX = 3
 
+local BORDER_STRIPS = 2
+local SMOOTH_BORDER_STRIPS = 4
+
 local lg = love.graphics
 
 --- Represents the abstract base class for all shapes.
@@ -16,12 +19,15 @@ local lg = love.graphics
 --- @field protected _borderMesh love.Mesh?
 --- @field protected _borderWidth number
 --- @field protected _borderColor loveshape.Color
+--- @field protected _borderSmoothing number
 --- @field protected _dirty boolean If true, messes need to be rebuild
 --- @field protected _bounds loveshape.Bounds Bounds including the border
 --- @field protected _innerBounds loveshape.Bounds Bounds excluding the border
 --- @field protected _textureQuad loveshape.Bounds? Texture area to render on the mesh
 local Shape = {}
 Shape.__index = Shape
+
+Shape.DEFAULT_BORDER_SMOOTHING = 1
 
 --- Initialize a new shape with the given amount of vertices.
 --- @param vertexCount integer
@@ -33,6 +39,7 @@ function Shape:_init(vertexCount)
   self._borderMesh = nil
   self._borderWidth = 0
   self._borderColor = Color.new(1, 1, 1)
+  self._borderSmoothing = Shape.DEFAULT_BORDER_SMOOTHING
   self._dirty = true
   self._bounds = Bounds.new()
   self._innerBounds = Bounds.new()
@@ -98,6 +105,25 @@ end
 --- @nodiscard
 function Shape:getBorderWidth()
   return self._borderWidth
+end
+
+--- @param smoothing number
+--- @return self
+function Shape:setBorderSmoothing(smoothing)
+  assert(type(smoothing) == "number" and smoothing >= 0)
+
+  if self._borderSmoothing ~= smoothing then
+    self._borderSmoothing = smoothing
+    self._dirty = true
+  end
+
+  return self
+end
+
+--- @return number smoothing
+--- @nodiscard
+function Shape:getBorderSmoothing()
+  return self._borderSmoothing
 end
 
 --- Get the position of the specified point.
@@ -266,11 +292,12 @@ function Shape:_updateBorderMesh()
   end
 
   local vertexCount = self._mesh:getVertexCount()
-  local borderVertexCount = (vertexCount * 2) + 2
+  local borderStrips = self._borderSmoothing == 0 and BORDER_STRIPS or SMOOTH_BORDER_STRIPS
+  local borderVertexCount = (vertexCount * borderStrips) + borderStrips
 
   -- Create a new border mesh if necessary
   if self._borderMesh == nil or self._borderMesh:getVertexCount() ~= borderVertexCount then
-    self._borderMesh = love.graphics.newMesh(borderVertexCount, "strip", "dynamic")
+    self._borderMesh = self:_createBorderMesh(borderVertexCount)
   end
 
   self._bounds:reset()
@@ -278,46 +305,91 @@ function Shape:_updateBorderMesh()
   for vertex = 1, vertexCount do
     local previousVertex = vertex == 1 and vertexCount or vertex - 1
     local nextVertex = vertex == vertexCount and 1 or vertex + 1
-    local borderVertex = (vertex * 2) - 1
+    local borderVertex = (vertex - 1) * borderStrips + 1
 
     local px, py = self._mesh:getVertexAttribute(previousVertex, POSITION_INDEX)
     local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
     local nx, ny = self._mesh:getVertexAttribute(nextVertex, POSITION_INDEX)
 
-    local edgePx, edgePy = utils.vecNormalize(vx - px, vy - py)
-    local edgeNx, edgeNy = utils.vecNormalize(nx - vx, ny - vy)
+    local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderWidth)
 
-    -- Compute the vertex normal.
-    local normalX, normalY
-    local crossProduct = utils.vecCross(edgePx, edgePy, edgeNx, edgeNy)
-
-    if math.abs(crossProduct) > 1e-09 then
-      normalX = self._borderWidth * (edgeNx - edgePx) / crossProduct
-      normalY = self._borderWidth * (edgeNy - edgePy) / crossProduct
+    if self._borderSmoothing == 0 then
+      self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx, vy)
+      self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx - normalX, vy - normalY)
+      self._bounds:addPoint(vx - normalX, vy - normalY)
     else
-      -- Special case when edge normals are almost perpendicular.
-      normalX = -(self._borderWidth * edgeNy)
-      normalY = self._borderWidth * edgeNx
-    end
+      local smoothX, smoothY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderSmoothing)
 
-    self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx, vy)
-    self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx - normalX, vy - normalY)
-    self._bounds:addPoint(vx - normalX, vy - normalY)
+      -- Solid core
+      self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx, vy)
+      self._borderMesh:setVertexAttribute(borderVertex + 2, POSITION_INDEX, vx - normalX, vy - normalY)
+
+      -- Gradient paddings
+      self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx + smoothX, vy + smoothY)
+      self._borderMesh:setVertexAttribute(
+        borderVertex + 3,
+        POSITION_INDEX,
+        vx - normalX - smoothX,
+        vy - normalY - smoothY
+      )
+
+      self._bounds:addPoint(vx - normalX - smoothX, vy - normalY - smoothY)
+    end
   end
 
   -- Close the border mesh loop.
-  self._borderMesh:setVertexAttribute(
-    borderVertexCount - 1,
-    POSITION_INDEX,
-    self._borderMesh:getVertexAttribute(1, POSITION_INDEX)
-  )
-  self._borderMesh:setVertexAttribute(
-    borderVertexCount,
-    POSITION_INDEX,
-    self._borderMesh:getVertexAttribute(2, POSITION_INDEX)
-  )
+  for vertex = 0, borderStrips - 1 do
+    self._borderMesh:setVertexAttribute(
+      borderVertexCount - vertex,
+      POSITION_INDEX,
+      self._borderMesh:getVertexAttribute(borderStrips - vertex, POSITION_INDEX)
+    )
+  end
 
   self:_updateBorderColor()
+end
+
+--- @param borderVertexCount integer
+--- @return love.Mesh mesh
+--- @nodiscard
+--- @protected
+function Shape:_createBorderMesh(borderVertexCount)
+  if self._borderSmoothing == 0 then
+    return love.graphics.newMesh(borderVertexCount, "strip", "dynamic")
+  end
+
+  -- When smoothing is enabled, create a line mesh with an opaque core and
+  -- opaque-to-transparent color gradients as padding.
+  --
+  -- Details: https://www.codeproject.com/Articles/199525/Drawing-nearly-perfect-2D-line-segments-in-OpenGL
+  --
+  -- This is what a single line segment looks like:
+  -- 4 +------------------+ 8
+  --   | Gradient padding |
+  -- 3 +------------------+ 7
+  --   | Opaque core line |
+  -- 2 +------------------+ 6
+  --   | Gradient padding |
+  -- 1 +------------------+ 5
+
+  local vertexMap = {}
+  local borderMesh = love.graphics.newMesh(borderVertexCount, "triangles", "dynamic")
+
+  for column = 1, self._mesh:getVertexCount() do
+    for row = 1, SMOOTH_BORDER_STRIPS - 1 do
+      local vertex = (column - 1) * SMOOTH_BORDER_STRIPS + row
+      table.insert(vertexMap, vertex)
+      table.insert(vertexMap, vertex + 5)
+      table.insert(vertexMap, vertex + 4)
+      table.insert(vertexMap, vertex + 1)
+      table.insert(vertexMap, vertex + 5)
+      table.insert(vertexMap, vertex)
+    end
+  end
+
+  borderMesh:setVertexMap(vertexMap)
+
+  return borderMesh
 end
 
 --- @protected
@@ -329,10 +401,29 @@ end
 
 --- @protected
 function Shape:_updateBorderColor()
-  if self._borderMesh then
+  if not self._borderMesh then
+    return
+  end
+
+  if self._borderSmoothing == 0 then
     for vertex = 1, self._borderMesh:getVertexCount() do
       self._borderMesh:setVertexAttribute(vertex, COLOR_INDEX, self._borderColor:unpack())
     end
+    return
+  end
+
+  -- Anti-aliased borders
+  for vertex = 1, self._mesh:getVertexCount() + 1 do
+    local borderVertex = (vertex - 1) * SMOOTH_BORDER_STRIPS + 1
+    local r, g, b, a = self._borderColor:unpack()
+
+    -- Solid core
+    self._borderMesh:setVertexAttribute(borderVertex + 1, COLOR_INDEX, r, g, b, a)
+    self._borderMesh:setVertexAttribute(borderVertex + 2, COLOR_INDEX, r, g, b, a)
+
+    -- Gradient paddings
+    self._borderMesh:setVertexAttribute(borderVertex, COLOR_INDEX, r, g, b, 0)
+    self._borderMesh:setVertexAttribute(borderVertex + 3, COLOR_INDEX, r, g, b, 0)
   end
 end
 
