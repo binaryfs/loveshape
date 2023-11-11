@@ -1,3 +1,5 @@
+--- Represents an RGBA color. Each color component is given as a floating point
+--- value in the range from 0 to 1.
 --- @class loveshape.Color
 local Color = {}
 Color.__index = Color

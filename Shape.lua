@@ -16,13 +16,14 @@ local lg = love.graphics
 --- @field protected _borderMesh love.Mesh?
 --- @field protected _borderWidth number
 --- @field protected _borderColor loveshape.Color
---- @field protected _dirty boolean
---- @field protected _bounds loveshape.Bounds
---- @field protected _innerBounds loveshape.Bounds
---- @field protected _textureQuad loveshape.Bounds?
+--- @field protected _dirty boolean If true, messes need to be rebuild
+--- @field protected _bounds loveshape.Bounds Bounds including the border
+--- @field protected _innerBounds loveshape.Bounds Bounds excluding the border
+--- @field protected _textureQuad loveshape.Bounds? Texture area to render on the mesh
 local Shape = {}
 Shape.__index = Shape
 
+--- Initialize a new shape with the given amount of vertices.
 --- @param vertexCount integer
 --- @protected
 function Shape:_init(vertexCount)
@@ -38,10 +39,10 @@ function Shape:_init(vertexCount)
   self._textureQuad = nil
 end
 
---- @param r number
---- @param g number
---- @param b number
---- @param a number? (default: 1)
+--- @param r number Red component in the range 0-1
+--- @param g number Green component in the range 0-1
+--- @param b number Blue component in the range 0-1
+--- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
 function Shape:setFillColor(r, g, b, a)
   self._fillColor:set(r, g, b, a)
@@ -58,10 +59,10 @@ function Shape:getFillColor()
   return self._fillColor:unpack()
 end
 
---- @param r number
---- @param g number
---- @param b number
---- @param a number? (default: 1)
+--- @param r number Red component in the range 0-1
+--- @param g number Green component in the range 0-1
+--- @param b number Blue component in the range 0-1
+--- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
 function Shape:setBorderColor(r, g, b, a)
   self._borderColor:set(r, g, b, a)
@@ -115,7 +116,7 @@ function Shape:getPointsCount()
   return self._mesh:getVertexCount()
 end
 
---- Get the axis-aligned bounding rectangle enclosing the shape.
+--- Get the axis-aligned bounding rectangle enclosing the shape (including the border).
 --- @return number x
 --- @return number y
 --- @return number width
@@ -123,7 +124,7 @@ end
 --- @nodiscard
 function Shape:getBounds()
   self:_updateMeshes()
-  return self._bounds.minX, self._bounds.minY, self._bounds:getWidth(), self._bounds:getHeight()
+  return self._bounds:getRect()
 end
 
 --- Get the axis-aligned bounding rectangle enclosing the shape after applying
@@ -138,8 +139,6 @@ end
 --- @return number height
 --- @nodiscard
 function Shape:getTransformedBounds(transform)
-  self:_updateMeshes()
-
   local bx, by, bw, bh = self:getBounds()
   local topLeftX, topLeftY = transform:transformPoint(bx, by)
   local topRightX, topRightY = transform:transformPoint(bx + bw, by)
@@ -154,14 +153,14 @@ function Shape:getTransformedBounds(transform)
   return minX, minY, maxX - minX, maxY - minY
 end
 
---- Get the texture that should be rendered on the shape.
+--- Get the texture that is rendered on the shape.
 --- @return (love.Texture)?
 --- @nodiscard
 function Shape:getTexture()
   return self._mesh:getTexture()
 end
 
---- Set or unset the texture that should be rendered on the shape.
+--- Set or unset the texture that is rendered on the shape.
 ---
 --- If the `setTextureQuad` parameter is set, the texture coordinates of the mesh will
 --- be updated accordingly. Otherwise you have to set them manually by calling the
@@ -211,6 +210,22 @@ function Shape:getTextureQuad()
     return 0, 0, 0, 0
   end
   return self._textureQuad:getRect()
+end
+
+--- Get the internal mesh that is used to render the shape.
+--- @return love.Mesh mesh
+--- @nodiscard
+--- @see loveshape.Shape.getBorderMesh
+function Shape:getMesh()
+  return self._mesh
+end
+
+--- Get the internal mesh that is used to render the shape's border.
+--- @return (love.Mesh)? mesh The mesh or nil if the shape has no border
+--- @nodiscard
+--- @see loveshape.Shape.getMesh
+function Shape:getBorderMesh()
+  return self._borderMesh
 end
 
 function Shape:draw(...)

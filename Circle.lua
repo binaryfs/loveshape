@@ -8,7 +8,7 @@ local Circle = utils.copyTable(Shape)
 Circle.__index = Circle
 
 --- @param radius number
---- @param pointsCount integer
+--- @param pointsCount integer Number of points used to draw the circle
 --- @return loveshape.Circle
 --- @nodiscard
 function Circle.new(radius, pointsCount)
@@ -48,6 +48,8 @@ function Circle:setRadius(radius)
 end
 
 --- Get the position of the specified point.
+---
+--- Requesting a non-extisting point will raise an error.
 --- @param index integer
 --- @return number x
 --- @return number y

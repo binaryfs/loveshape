@@ -8,6 +8,7 @@ local utils = require(BASE .. "utils")
 local Rectangle = utils.copyTable(Shape)
 Rectangle.__index = Rectangle
 
+--- Create a new rectangle with the specified dimensions.
 --- @param width number
 --- @param height number
 --- @return loveshape.Rectangle

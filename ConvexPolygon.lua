@@ -7,6 +7,7 @@ local utils = require(BASE .. "utils")
 local ConvexPolygon = utils.copyTable(Shape)
 ConvexPolygon.__index = ConvexPolygon
 
+--- Create a new convex polygon with the given amount of vertices.
 --- @param pointsCount integer Number of polygon points
 --- @return loveshape.ConvexPolygon
 --- @nodiscard
@@ -35,6 +36,8 @@ function ConvexPolygon:isConvex()
 end
 
 --- Get the position of the specified point.
+---
+--- Getting the position of a non-existing point will raise an error.
 --- @param index integer
 --- @return number x
 --- @return number y
@@ -49,6 +52,8 @@ function ConvexPolygon:getPoint(index)
 end
 
 --- Set the position of the specified point.
+---
+--- Setting the position of a non-existing point will raise an error.
 --- @param index integer
 --- @param x number
 --- @param y number

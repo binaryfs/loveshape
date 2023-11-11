@@ -5,10 +5,15 @@ local utils = require(BASE .. "utils")
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
 --- @field protected _cornerRadius number
---- @field protected _pointsPerCorner integer
+--- @field protected _pointsPerCorner integer Number of points to represent a rounded corner
 local RoundedRectangle = utils.copyTable(Rectangle)
 RoundedRectangle.__index = RoundedRectangle
 
+--- Create a new rounded rectangle.
+---
+--- The corner radius should be smaller than the half width and the half height of the
+--- rectangle. If this is not the case, the corner radius is reduced automatically
+--- when the rectangle is drawn.
 --- @param width number
 --- @param height number
 --- @param cornerRadius number
@@ -37,6 +42,8 @@ function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
 end
 
 --- Get the position of the specified point.
+---
+--- Requesting the position of a non-existing point will raise an error.
 --- @param index integer
 --- @return number x
 --- @return number y
