@@ -1,12 +1,12 @@
 local BASE = (...):gsub("[^%.]*$", "")
 local Shape = require(BASE .. "Shape")
+--- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
 --- @class loveshape.Rectangle: loveshape.Shape
 --- @field protected _width number
 --- @field protected _height number
-local Rectangle = utils.copyTable(Shape)
-Rectangle.__index = Rectangle
+local Rectangle = utils.class("loveshape.Rectangle", Shape)
 
 --- Create a new rectangle with the specified dimensions.
 --- @param width number

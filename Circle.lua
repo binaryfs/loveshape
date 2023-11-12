@@ -1,11 +1,11 @@
 local BASE = (...):gsub("[^%.]*$", "")
 local Shape = require(BASE .. "Shape")
+--- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
 --- @class loveshape.Circle: loveshape.Shape
 --- @field protected _radius number
-local Circle = utils.copyTable(Shape)
-Circle.__index = Circle
+local Circle = utils.class("loveshape.Circle", Shape)
 
 --- @param radius number
 --- @param pointsCount integer Number of points used to draw the circle

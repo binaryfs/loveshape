@@ -1,8 +1,14 @@
+local BASE = (...):gsub("[^%.]*$", "")
+local Object = require(BASE .. "Object")
+--- @type loveshape.utils
+local utils = require(BASE .. "utils")
+
 --- Represents an RGBA color. Each color component is given as a floating point
 --- value in the range from 0 to 1.
---- @class loveshape.Color
-local Color = {}
-Color.__index = Color
+---
+--- This class is used internally by loveshape.
+--- @class loveshape.Color: loveshape.Object
+local Color = utils.class("loveshape.Color", Object)
 
 --- @param r number
 --- @param g number

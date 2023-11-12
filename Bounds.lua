@@ -1,11 +1,17 @@
+local BASE = (...):gsub("[^%.]*$", "")
+local Object = require(BASE .. "Object")
+--- @type loveshape.utils
+local utils = require(BASE .. "utils")
+
 --- Represents an axis-aligned bounding rectangle.
---- @class loveshape.Bounds
+---
+--- This class is used internally by loveshape.
+--- @class loveshape.Bounds: loveshape.Object
 --- @field minX number X coordinate of top-left corner
 --- @field minY number Y coordinate of top-left corner
 --- @field maxX number X coordinate of bottom-right corner
 --- @field maxY number Y coordinate of bottom-right corner
-local Bounds = {}
-Bounds.__index = Bounds
+local Bounds = utils.class("loveshape.Bounds", Object)
 
 --- Create a new bounds object with infinite dimensions.
 --- @return loveshape.Bounds

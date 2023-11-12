@@ -1,13 +1,13 @@
 local BASE = (...):gsub("[^%.]*$", "")
 local Rectangle = require(BASE .. "Rectangle")
+--- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
 --- @field protected _cornerRadius number
 --- @field protected _pointsPerCorner integer Number of points to represent a rounded corner
-local RoundedRectangle = utils.copyTable(Rectangle)
-RoundedRectangle.__index = RoundedRectangle
+local RoundedRectangle = utils.class("loveshape.RoundedRectangle", Rectangle)
 
 --- Create a new rounded rectangle.
 ---

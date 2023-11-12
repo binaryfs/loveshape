@@ -1,15 +1,29 @@
+--- Internal utility functions for the loveshape library.
+--- @class loveshape.utils
 local utils = {}
 
---- Create a flat copy of the specified table.
---- @param t table
---- @return table copy
+--- @param name string
+--- @param parent table? Optional parent class
+--- @return table newClass
 --- @nodiscard
-function utils.copyTable(t)
-  local copy = {}
-  for k, v in pairs(t) do
-    copy[k] = v
+function utils.class(name, parent)
+  assert(type(name) == "string" and name ~= "", "Name your class!")
+
+  local newClass = {}
+
+  if parent then
+    for key, value in pairs(parent) do
+      if type(value) ~= "table" then
+        newClass[key] = value
+      end
+    end
+    newClass._parentClass = parent
   end
-  return copy
+
+  newClass._typename = name
+  newClass.__index = newClass
+
+  return newClass
 end
 
 --- Return a vector with a certain angle.

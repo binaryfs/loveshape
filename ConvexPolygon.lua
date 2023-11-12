@@ -1,11 +1,11 @@
 local BASE = (...):gsub("[^%.]*$", "")
 local Shape = require(BASE .. "Shape")
+--- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
 --- @class loveshape.ConvexPolygon: loveshape.Shape
 --- @field protected _points table
-local ConvexPolygon = utils.copyTable(Shape)
-ConvexPolygon.__index = ConvexPolygon
+local ConvexPolygon = utils.class("loveshape.ConvexPolygon", Shape)
 
 --- Create a new convex polygon with the given amount of vertices.
 --- @param pointsCount integer Number of polygon points

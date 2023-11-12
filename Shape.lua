@@ -1,6 +1,10 @@
 local BASE = (...):gsub("[^%.]*$", "")
+--- @type loveshape.Bounds
 local Bounds = require(BASE .. "Bounds")
+--- @type loveshape.Color
 local Color = require(BASE .. "Color")
+local Object = require(BASE .. "Object")
+--- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
 local POSITION_INDEX = 1
@@ -16,7 +20,7 @@ local lg = love.graphics
 --- @alias loveshape.VerticalAlign "top" | "center" | "bottom"
 
 --- Represents the abstract base class for all shapes.
---- @class loveshape.Shape
+--- @class loveshape.Shape: loveshape.Object
 --- @field protected _mesh love.Mesh
 --- @field protected _fillColor loveshape.Color
 --- @field protected _borderMesh love.Mesh?
@@ -27,8 +31,7 @@ local lg = love.graphics
 --- @field protected _bounds loveshape.Bounds Bounds including the border
 --- @field protected _innerBounds loveshape.Bounds Bounds excluding the border
 --- @field protected _textureQuad loveshape.Bounds? Texture area to render on the mesh
-local Shape = {}
-Shape.__index = Shape
+local Shape = utils.class("loveshape.Shape", Object)
 
 Shape.DEFAULT_BORDER_SMOOTHING = 1
 
