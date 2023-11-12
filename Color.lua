@@ -9,7 +9,11 @@ Color.__index = Color
 --- @param b number
 --- @param a number? (default: 1)
 --- @return loveshape.Color
+--- @overload fun(rgba: table): loveshape.Color
 function Color.new(r, g, b, a)
+  if type(r) == "table" then
+    r, g, b, a = unpack(r)
+  end
   return setmetatable({
     assert(r, "red required"),
     assert(g, "green required"),
@@ -23,11 +27,17 @@ end
 --- @param b number
 --- @param a number? (default: 1)
 --- @return loveshape.Color self
+--- @overload fun(self: loveshape.Color, rgba: table): loveshape.Color
 function Color:set(r, g, b, a)
+  if type(r) == "table" then
+    r, g, b, a = unpack(r)
+  end
+
   self[1] = assert(r, "red required")
   self[2] = assert(g, "green required")
   self[3] = assert(b, "blue required")
   self[4] = a or 1
+
   return self
 end
 

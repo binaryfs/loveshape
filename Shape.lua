@@ -49,11 +49,12 @@ function Shape:_init(vertexCount)
   self._textureQuad = nil
 end
 
---- @param r number Red component in the range 0-1
+--- @param r number Red component in the range 0-1!
 --- @param g number Green component in the range 0-1
 --- @param b number Blue component in the range 0-1
 --- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
+--- @overload fun(self: loveshape.Shape, rgba: table): loveshape.Shape
 function Shape:setFillColor(r, g, b, a)
   self._fillColor:set(r, g, b, a)
   self:_updateFillColor()
@@ -74,6 +75,7 @@ end
 --- @param b number Blue component in the range 0-1
 --- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
+--- @overload fun(self: loveshape.Shape, rgba: table): self
 function Shape:setBorderColor(r, g, b, a)
   self._borderColor:set(r, g, b, a)
   self:_updateBorderColor()
