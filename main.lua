@@ -1,7 +1,4 @@
-local Circle = require("Circle")
-local Rectangle = require("Rectangle")
-local RoundedRectangle = require("RoundedRectangle")
-local ConvexPolygon = require("ConvexPolygon")
+local loveshape = require("init")
 
 local Palette = {
   PURPLE = {137 / 255, 33 / 255, 194 / 255},
@@ -15,16 +12,16 @@ local Palette = {
 -- Show some basic shapes.
 local shapesDemo = {
   init = function (self)
-    self.rect = Rectangle.new(100, 80)
+    self.rect = loveshape.Rectangle.new(100, 80)
     self.rect:setFillColor(Palette.PURPLE)
 
-    self.triangle = Circle.new(50, 3)
+    self.triangle = loveshape.Circle.new(50, 3)
     self.triangle:setFillColor(Palette.GREEN)
 
-    self.rounded = RoundedRectangle.new(110, 100, 14, 4)
+    self.rounded = loveshape.RoundedRectangle.new(110, 100, 14, 4)
     self.rounded:setFillColor(Palette.PINK)
 
-    self.poly = ConvexPolygon.new(4)
+    self.poly = loveshape.ConvexPolygon.new(4)
     self.poly:setFillColor(Palette.BLUE)
     self.poly:setPoint(1, 0, 0)
     self.poly:setPoint(2, 30, 30)
@@ -50,12 +47,12 @@ local texturesDemo = {
     local wall = love.graphics.newImage("assets/wall.png")
     wall:setWrap("repeat")
 
-    self.circle = Circle.new(50, 6)
+    self.circle = loveshape.Circle.new(50, 6)
     self.circle:setBorderColor(Palette.PINK)
     self.circle:setBorderWidth(3)
     self.circle:setTexture(wall, true)
 
-    self.rect = Rectangle.new(200, 100)
+    self.rect = loveshape.Rectangle.new(200, 100)
     self.rect:setTexture(wall)
     self.rect:setTextureQuad(0, 0, 600, 300)
     self.rect:setFillColor(Palette.ORANGE)
@@ -71,33 +68,33 @@ local texturesDemo = {
 -- Show different kind of borders.
 local bordersDemo = {
   init = function (self)
-    self.rect1 = Rectangle.new(40, 40)
+    self.rect1 = loveshape.Rectangle.new(40, 40)
     self.rect1:setFillColor(0, 0, 0, 0)
     self.rect1:setBorderWidth(1)
     self.rect1:setBorderColor(1, 1, 1)
 
-    self.rect2 = Rectangle.new(40, 40)
+    self.rect2 = loveshape.Rectangle.new(40, 40)
     self.rect2:setFillColor(Palette.PURPLE)
     self.rect2:setBorderWidth(1)
     self.rect2:setBorderColor(1, 1, 1)
 
-    self.rect3 = Rectangle.new(40, 40)
+    self.rect3 = loveshape.Rectangle.new(40, 40)
     self.rect3:setFillColor(Palette.PURPLE)
     self.rect3:setBorderWidth(5)
     self.rect3:setBorderColor(Palette.YELLOW)
 
-    self.rect4 = Rectangle.new(130, 40)
+    self.rect4 = loveshape.Rectangle.new(130, 40)
     self.rect4:setFillColor(Palette.PURPLE)
     self.rect4:setBorderWidth(1)
     self.rect4:setBorderColor(Palette.PURPLE)
     self.rect4:setBorderSmoothing(14)
 
-    self.circle = Circle.new(40, 30)
+    self.circle = loveshape.Circle.new(40, 30)
     self.circle:setFillColor(Palette.GREEN)
     self.circle:setBorderWidth(10)
     self.circle:setBorderColor(Palette.PINK)
 
-    self.rounded = RoundedRectangle.new(120, 60, 14, 6)
+    self.rounded = loveshape.RoundedRectangle.new(120, 60, 14, 6)
     self.rounded:setFillColor(Palette.YELLOW)
     self.rounded:setBorderWidth(1)
     self.rounded:setBorderSmoothing(12)
@@ -118,13 +115,13 @@ local bordersDemo = {
 -- Show axis-aligned bounding rectangles.
 local boundsDemo = {
   init = function (self)
-    self.poly = ConvexPolygon.new(3)
+    self.poly = loveshape.ConvexPolygon.new(3)
     self.poly:setPoint(1, 0, -30)
     self.poly:setPoint(2, 40, 30)
     self.poly:setPoint(3, -60, 70)
     self.poly:setFillColor(Palette.YELLOW)
 
-    self.rect = Rectangle.new(50, 30)
+    self.rect = loveshape.Rectangle.new(50, 30)
     self.rect:setFillColor(Palette.ORANGE)
     self.rect:setBorderWidth(3)
     self.rect:setBorderColor(Palette.BLUE)
@@ -153,7 +150,7 @@ local boundsDemo = {
 -- Show aligment of shapes to specified points.
 local alignDemo = {
   init = function (self)
-    self.rect = Rectangle.new(50, 50)
+    self.rect = loveshape.Rectangle.new(50, 50)
     self.rect:setFillColor(Palette.BLUE)
   end,
 
