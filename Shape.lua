@@ -12,6 +12,9 @@ local SMOOTH_BORDER_STRIPS = 4
 
 local lg = love.graphics
 
+--- @alias loveshape.HorizontalAlign "left" | "center" | "right"
+--- @alias loveshape.VerticalAlign "top" | "center" | "bottom"
+
 --- Represents the abstract base class for all shapes.
 --- @class loveshape.Shape
 --- @field protected _mesh love.Mesh
@@ -254,6 +257,9 @@ function Shape:getBorderMesh()
   return self._borderMesh
 end
 
+--- Draw the shape on the screen.
+--- @param ... any Arguments for `love.graphics.draw`
+--- @return self
 function Shape:draw(...)
   self:_updateMeshes()
   lg.draw(self._mesh, ...)
@@ -261,6 +267,44 @@ function Shape:draw(...)
   if self._borderMesh then
     lg.draw(self._borderMesh, ...)
   end
+
+  return self
+end
+
+--- Draw the shape aligned to the specified point.
+--- @param align loveshape.HorizontalAlign Horizontal alignment
+--- @param valign loveshape.VerticalAlign Vertical alignment
+--- @param x number X position
+--- @param y number Y position
+--- @param angle number? Angle in radians (default: 0)
+--- @param scaleX number? X scale (default: 1)
+--- @param scaleY number? Y scale (default: 1)
+--- @return self
+function Shape:drawAligned(align, valign, x, y, angle, scaleX, scaleY)
+  local offsetX, offsetY = 0, 0
+  local boundsX, outerY, boundsWidth, boundsHeight = self._bounds:getRect()
+
+  if align == "left" then
+    offsetX = boundsX
+  elseif align == "right" then
+    offsetX = boundsX + boundsWidth
+  elseif align == "center" then
+    offsetX = boundsX + (boundsWidth / 2)
+  else
+    error("Invalid horizontal alignment: " .. tostring(align))
+  end
+
+  if valign == "top" then
+    offsetY = outerY
+  elseif valign == "center" then
+    offsetY = outerY + (boundsHeight / 2)
+  elseif valign == "bottom" then
+    offsetY = outerY + boundsHeight
+  else
+    error("Invalid vertical alignment: " .. tostring(valign))
+  end
+
+  return self:draw(x, y, angle or 0, scaleX or 1, scaleY or 1, offsetX, offsetY)
 end
 
 --- @protected
