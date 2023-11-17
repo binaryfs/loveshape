@@ -1,4 +1,5 @@
 local loveshape = require("init")
+local loveunit = require("loveunit")
 
 local Palette = {
   PURPLE = {137 / 255, 33 / 255, 194 / 255},
@@ -192,7 +193,19 @@ local demos = {
   alignDemo,
 }
 
+local function runLoveunit()
+  loveunit.runTestFiles("tests")
+  local success, report = loveunit.report()
+
+  if not success then
+    print(report)
+    error("Unit tests failed!")
+  end
+end
+
 function love.load()
+  runLoveunit()
+
   for index = 1, #demos do
     demos[index]:init()
   end

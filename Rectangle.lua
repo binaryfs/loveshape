@@ -26,7 +26,7 @@ end
 --- @protected
 function Rectangle:_init(vertexCount, width, height)
   assert(type(width) == "number" and width >= 0)
-  assert(type(height) == "number" and width >= 0)
+  assert(type(height) == "number" and height >= 0)
 
   Shape._init(self, vertexCount)
   self._width = width
@@ -42,6 +42,13 @@ function Rectangle:setSize(width, height)
   return self
 end
 
+--- @return number width
+--- @return number height
+--- @nodiscard
+function Rectangle:getSize()
+  return self._width, self._height
+end
+
 --- @param width number
 --- @return self
 function Rectangle:setWidth(width)
@@ -53,6 +60,12 @@ function Rectangle:setWidth(width)
   end
 
   return self
+end
+
+--- @return number width
+--- @nodiscard
+function Rectangle:getWidth()
+  return self._width
 end
 
 --- @param height number
@@ -68,11 +81,10 @@ function Rectangle:setHeight(height)
   return self
 end
 
---- @return number width
 --- @return number height
 --- @nodiscard
-function Rectangle:getSize()
-  return self._width, self._height
+function Rectangle:getHeight()
+  return self._height
 end
 
 --- @param index integer

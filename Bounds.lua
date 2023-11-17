@@ -35,6 +35,15 @@ function Bounds:set(minX, minY, maxX, maxY)
   return self
 end
 
+--- @return number minX
+--- @return number minY
+--- @return number maxX
+--- @return number maxY
+--- @nodiscard
+function Bounds:unpack()
+  return self.minX, self.minY, self.maxX, self.maxY
+end
+
 --- Get a rectangle of the bounds.
 --- @return number x
 --- @return number y

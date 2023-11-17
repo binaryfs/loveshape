@@ -364,25 +364,25 @@ function Shape:_updateBorderMesh()
 
     if self._borderSmoothing == 0 then
       self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx, vy)
-      self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx - normalX, vy - normalY)
-      self._bounds:addPoint(vx - normalX, vy - normalY)
+      self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx + normalX, vy + normalY)
+      self._bounds:addPoint(vx + normalX, vy + normalY)
     else
       local smoothX, smoothY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderSmoothing)
 
       -- Solid core
       self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx, vy)
-      self._borderMesh:setVertexAttribute(borderVertex + 2, POSITION_INDEX, vx - normalX, vy - normalY)
+      self._borderMesh:setVertexAttribute(borderVertex + 2, POSITION_INDEX, vx + normalX, vy + normalY)
 
       -- Gradient paddings
-      self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx + smoothX, vy + smoothY)
+      self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx - smoothX, vy - smoothY)
       self._borderMesh:setVertexAttribute(
         borderVertex + 3,
         POSITION_INDEX,
-        vx - normalX - smoothX,
-        vy - normalY - smoothY
+        vx + normalX + smoothX,
+        vy + normalY + smoothY
       )
 
-      self._bounds:addPoint(vx - normalX - smoothX, vy - normalY - smoothY)
+      self._bounds:addPoint(vx + normalX + smoothX, vy + normalY + smoothY)
     end
   end
 

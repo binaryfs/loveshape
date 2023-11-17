@@ -41,6 +41,18 @@ function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
   self._pointsPerCorner = pointsPerCorner
 end
 
+--- @return number cornerRadius
+--- @nodiscard
+function RoundedRectangle:getCornerRadius()
+  return self._cornerRadius
+end
+
+--- @return number pointsPerCorner
+--- @nodiscard
+function RoundedRectangle:getPointsPerCorner()
+  return self._pointsPerCorner
+end
+
 --- Get the position of the specified point.
 ---
 --- Requesting the position of a non-existing point will raise an error.

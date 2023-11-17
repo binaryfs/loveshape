@@ -26,6 +26,16 @@ function utils.class(name, parent)
   return newClass
 end
 
+--- Clamp a value between a lower an an upper bound.
+--- @param value number
+--- @param min number The lower bound
+--- @param max number The upper bound
+--- @return number clampedValue
+--- @nodiscard
+function utils.clamp(value, min, max)
+  return value < min and min or (value > max and max or value)
+end
+
 --- Return a vector with a certain angle.
 --- @param angle number The angle in radians
 --- @param length? number The length of the vector (defaults to 1)
@@ -99,12 +109,12 @@ function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
   local normalX, normalY
 
   if math.abs(crossProduct) > 1e-09 then
-    normalX = length * (edgeBx - edgeAx) / crossProduct
-    normalY = length * (edgeBy - edgeAy) / crossProduct
+    normalX = -(length * (edgeBx - edgeAx) / crossProduct)
+    normalY = -(length * (edgeBy - edgeAy) / crossProduct)
   else
     -- Special case when edge normals are almost perpendicular.
-    normalX = -(length * edgeBy)
-    normalY = length * edgeBx
+    normalX = length * edgeBy
+    normalY = -(length * edgeBx)
   end
 
   return normalX, normalY
