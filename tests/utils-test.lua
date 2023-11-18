@@ -61,8 +61,14 @@ test:group("vecEquals()", function ()
 end)
 
 test:group("computeVertexNormal()", function ()
+  -- ax, ay -> Start vertex of first edge
+  -- bx, by -> Shared vertex of first and second edge
+  -- cx, cy -> End vertex of second edge
+  -- length -> Desired length of the normal
+  -- nx, ny -> Expected normal
   test:run("should compute the vertex normal", function (ax, ay, bx, by, cx, cy, length, nx, ny)
-    test:assertAlmostEqual({nx, ny}, {utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)})
+    local normalX, normalY = utils.computeVertexNormal(ax, ay, bx, by, cx, cy)
+    test:assertAlmostEqual({nx, ny}, {normalX * length, normalY * length})
   end, {
     -- a--b--c
     {0, 0, 10, 0, 20, 0, 5, 0, -5},

@@ -120,11 +120,13 @@ end
 --- @param by number Y position of the shared vertex
 --- @param cx number X position of the end point of the second edge.
 --- @param cy number Y position of the end point of the second edge.
---- @param length number Desired length of the normal
+--- @param length number? Desired length of the normal (default: 1)
 --- @return number normalX
 --- @return number normalY
 --- @nodiscard
 function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
+  length = length or 1
+
   -- Edges from a to b and b to c.
   local edgeAx, edgeAy = utils.vecNormalize(bx - ax, by - ay)
   local edgeBx, edgeBy = utils.vecNormalize(cx - bx, cy - by)
@@ -133,15 +135,15 @@ function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
   local normalX, normalY
 
   if abs(crossProduct) > 1e-09 then
-    normalX = -(length * (edgeBx - edgeAx) / crossProduct)
-    normalY = -(length * (edgeBy - edgeAy) / crossProduct)
+    normalX = (edgeAx - edgeBx) / crossProduct
+    normalY = (edgeAy - edgeBy) / crossProduct
   else
     -- Special case when edge normals are almost perpendicular.
-    normalX = length * edgeBy
-    normalY = -(length * edgeBx)
+    normalX = edgeBy
+    normalY = -edgeBx
   end
 
-  return normalX, normalY
+  return normalX * length, normalY * length
 end
 
 --- Get the next distinct vertex position from a mesh.

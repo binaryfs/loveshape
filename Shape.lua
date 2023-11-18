@@ -366,35 +366,14 @@ function Shape:_updateBorderMesh()
     local px, py = utils.previousDistinctVertexPosition(self._mesh, vertex)
     local nx, ny = utils.nextDistinctVertexPosition(self._mesh, vertex)
 
-    local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderWidth)
-
     if self._borderSmoothing == 0 then
+      local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderWidth)
       self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx, vy)
       self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx + normalX, vy + normalY)
       self._bounds:addPoint(vx + normalX, vy + normalY)
     else
-      local smoothX, smoothY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderSmoothing)
-
-      -- Invert normal for inner borders.
-      if self._borderWidth < 0 then
-        smoothX, smoothY = -smoothX, -smoothY
-      end
-
-      -- Solid core
-      self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx, vy)
-      self._borderMesh:setVertexAttribute(borderVertex + 2, POSITION_INDEX, vx + normalX, vy + normalY)
-
-      -- Gradient paddings
-      self._borderMesh:setVertexAttribute(borderVertex, POSITION_INDEX, vx - smoothX, vy - smoothY)
-      self._borderMesh:setVertexAttribute(
-        borderVertex + 3,
-        POSITION_INDEX,
-        vx + normalX + smoothX,
-        vy + normalY + smoothY
-      )
-
-      -- Note: The bounds do not include border smoothing.
-      self._bounds:addPoint(vx + normalX, vy + normalY)
+      local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny)
+      self:_updateSmoothedBorderVertex(borderVertex, vx, vy, normalX, normalY)
     end
   end
 
@@ -408,6 +387,39 @@ function Shape:_updateBorderMesh()
   end
 
   self:_updateBorderColor()
+end
+
+--- @param vertex integer Index of border vertex
+--- @param vx number X position of shape vertex
+--- @param vy number Y position of shape vertex
+--- @param normalX number X position of shape vertex normal (unit vextor!)
+--- @param normalY number Y position of shape vertex normal (unit vector!)
+--- @protected
+function Shape:_updateSmoothedBorderVertex(vertex, vx, vy, normalX, normalY)
+  local smoothing, borderWidth = self._borderSmoothing, self._borderWidth
+  local smoothX, smoothY = normalX * smoothing, normalY * smoothing
+  normalX, normalY = normalX * borderWidth, normalY * borderWidth
+
+  -- Invert normal for inner borders.
+  if borderWidth < 0 then
+    smoothX, smoothY = -smoothX, -smoothY
+  end
+
+  -- Solid core
+  self._borderMesh:setVertexAttribute(vertex + 1, POSITION_INDEX, vx, vy)
+  self._borderMesh:setVertexAttribute(vertex + 2, POSITION_INDEX, vx + normalX, vy + normalY)
+
+  -- Gradient paddings
+  self._borderMesh:setVertexAttribute(vertex, POSITION_INDEX, vx - smoothX, vy - smoothY)
+  self._borderMesh:setVertexAttribute(
+    vertex + 3,
+    POSITION_INDEX,
+    vx + normalX + smoothX,
+    vy + normalY + smoothY
+  )
+
+  -- Note: The bounds do not include border smoothing.
+  self._bounds:addPoint(vx + normalX, vy + normalY)
 end
 
 --- @param borderVertexCount integer
