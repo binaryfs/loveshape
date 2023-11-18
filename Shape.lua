@@ -152,7 +152,9 @@ function Shape:getPointsCount()
   return self._mesh:getVertexCount()
 end
 
---- Get the axis-aligned bounding rectangle enclosing the shape (including the border).
+--- Get the axis-aligned bounding rectangle enclosing the shape.
+---
+--- The rectangle includes the border, but does not include boorder smoothing.
 --- @return number x
 --- @return number y
 --- @return number width
@@ -357,6 +359,7 @@ function Shape:_updateBorderMesh()
     local borderVertex = (vertex - 1) * borderStrips + 1
 
     local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
+    self._bounds:addPoint(vx, vy)
 
     -- In same rare cases (e.g. pill-shaped meshes) adjacent vertices might share the same position.
     -- In those cases we have to find the closest distinct vertex, in order to compute the normals.
@@ -390,7 +393,8 @@ function Shape:_updateBorderMesh()
         vy + normalY + smoothY
       )
 
-      self._bounds:addPoint(vx + normalX + smoothX, vy + normalY + smoothY)
+      -- Note: The bounds do not include border smoothing.
+      self._bounds:addPoint(vx + normalX, vy + normalY)
     end
   end
 

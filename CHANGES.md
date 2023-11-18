@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Clamp components of `Color` class automatically
 - `utils.computeVertexNormal` does not return inverted normals anymore
 - Allow negative values for `Shape:setBorderWidth` to create inner borders
+- Exclude border smoothing from bounding rectangle calculation
 
 ### Fixed
 
