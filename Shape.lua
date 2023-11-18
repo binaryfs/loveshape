@@ -94,11 +94,14 @@ function Shape:getBorderColor()
   return self._borderColor:unpack()
 end
 
---- Set the border width in pixels.
+--- Set the width of the border.
+---
+--- A positive value creates an outer border. A negative value creates an inner border.
+--- A value equal to zero disables the border. The border width is 0 by default.
 --- @param width number
 --- @return self
 function Shape:setBorderWidth(width)
-  assert(type(width) == "number" and width >= 0)
+  assert(type(width) == "number")
 
   if self._borderWidth ~= width then
     self._borderWidth = width
@@ -108,7 +111,6 @@ function Shape:setBorderWidth(width)
   return self
 end
 
---- Get the border width in pixels.
 --- @return number width
 --- @nodiscard
 function Shape:getBorderWidth()
@@ -369,6 +371,11 @@ function Shape:_updateBorderMesh()
       self._bounds:addPoint(vx + normalX, vy + normalY)
     else
       local smoothX, smoothY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderSmoothing)
+
+      -- Invert normal for inner borders.
+      if self._borderWidth < 0 then
+        smoothX, smoothY = -smoothX, -smoothY
+      end
 
       -- Solid core
       self._borderMesh:setVertexAttribute(borderVertex + 1, POSITION_INDEX, vx, vy)
