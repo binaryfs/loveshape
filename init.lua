@@ -32,6 +32,9 @@ local loveshape = {
   ]],
 }
 
+--- @type loveshape.Ellipse
+loveshape.Ellipse = require(BASE .. "Ellipse")
+
 --- @type loveshape.Circle
 loveshape.Circle = require(BASE .. "Circle")
 

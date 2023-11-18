@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `Rectangle:getWidth` and `Rectangle:getHeight`
 - `RoundedRectangle:getCornerRadius` and `RoundedRectangle:getPointsPerCorner`
 - `Bounds:unpack` to get the dimensions of a bounds object
+- `Ellipse` class to draw elliptical shapes
 
 ### Changed
 
