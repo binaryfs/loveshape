@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Wrong height assertion in `Rectangle` initializer
 - Wrong vertex normals for perpendicular edges
+- Rendering issues of shapes that included non-distinct vertices (e.g. pills)
 
 ## [1.0.0] - 2023-11-12
 

@@ -352,13 +352,14 @@ function Shape:_updateBorderMesh()
   self._bounds:reset()
 
   for vertex = 1, vertexCount do
-    local previousVertex = vertex == 1 and vertexCount or vertex - 1
-    local nextVertex = vertex == vertexCount and 1 or vertex + 1
     local borderVertex = (vertex - 1) * borderStrips + 1
 
-    local px, py = self._mesh:getVertexAttribute(previousVertex, POSITION_INDEX)
     local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
-    local nx, ny = self._mesh:getVertexAttribute(nextVertex, POSITION_INDEX)
+
+    -- In same rare cases (e.g. pill-shaped meshes) adjacent vertices might share the same position.
+    -- In those cases we have to find the closest distinct vertex, in order to compute the normals.
+    local px, py = utils.previousDistinctVertexPosition(self._mesh, vertex)
+    local nx, ny = utils.nextDistinctVertexPosition(self._mesh, vertex)
 
     local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._borderWidth)
 

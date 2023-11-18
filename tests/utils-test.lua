@@ -15,6 +15,17 @@ test:group("clamp()", function ()
   })
 end)
 
+test:group("almostEqual()", function ()
+  test:run("should determine if two numbers are almost equal", function (a, b, equal)
+    test:assertEqual(utils.almostEqual(a, b), equal)
+  end, {
+    {1, 1, true},
+    {1, 2, false},
+    {100000000000000.01, 100000000000000.011, true},
+    {100.01, 100.011, false},
+  })
+end)
+
 test:group("vecLength()", function ()
   test:run("should return the length of a vector", function (x, y, length)
     test:assertAlmostEqual(length, utils.vecLength(x, y))
@@ -37,6 +48,16 @@ test:group("vecNormalize()", function ()
   test:run("should normalize a vector to the specified length", function ()
     test:assertAlmostEqual(4, utils.vecLength(utils.vecNormalize(10, 20, 4)))
   end)
+end)
+
+test:group("vecEquals()", function ()
+  test:run("should determine if two vectors are equal", function (ax, ay, bx, by, equal)
+    test:assertEqual(utils.vecEquals(ax, ay, bx, by), equal)
+  end, {
+    {1, 2, 1, 2, true},
+    {100.01, 0, 100.011, 0, false},
+    {100000000000000.01, 0, 100000000000000.011, 0, true},
+  })
 end)
 
 test:group("computeVertexNormal()", function ()
@@ -62,4 +83,44 @@ test:group("computeVertexNormal()", function ()
     -- b--a
     {0, 0, -10, 0, -10, -10, 9, -9, 9},
   })
+end)
+
+test:group("nextDistinctVertexPosition()", function ()
+  test:run("should return the next distinct vertex position", function (vertex, x, y)
+    local mesh = love.graphics.newMesh(4, "fan")
+    mesh:setVertexAttribute(1, 1, 0, 0)
+    mesh:setVertexAttribute(2, 1, 0, 0)
+    mesh:setVertexAttribute(3, 1, 10, 0)
+    mesh:setVertexAttribute(4, 1, 5, 10)
+    test:assertEqual({x, y}, {utils.nextDistinctVertexPosition(mesh, vertex)})
+  end, {
+    {1, 10, 0},
+    {2, 10, 0},
+    {3, 5, 10},
+    {4, 0, 0},
+  })
+  test:run("should return the shared postion if no vertex is distinct", function ()
+    local mesh = love.graphics.newMesh(4, "fan")
+    test:assertEqual({0, 0}, {utils.nextDistinctVertexPosition(mesh, 1)})
+  end)
+end)
+
+test:group("previousDistinctVertexPosition()", function ()
+  test:run("should return the previous distinct vertex position", function (vertex, x, y)
+    local mesh = love.graphics.newMesh(4, "fan")
+    mesh:setVertexAttribute(1, 1, 0, 0)
+    mesh:setVertexAttribute(2, 1, 0, 0)
+    mesh:setVertexAttribute(3, 1, 10, 0)
+    mesh:setVertexAttribute(4, 1, 5, 10)
+    test:assertEqual({x, y}, {utils.previousDistinctVertexPosition(mesh, vertex)})
+  end, {
+    {1, 5, 10},
+    {2, 5, 10},
+    {3, 0, 0},
+    {4, 10, 0},
+  })
+  test:run("should return the shared postion if no vertex is distinct", function ()
+    local mesh = love.graphics.newMesh(4, "fan")
+    test:assertEqual({0, 0}, {utils.previousDistinctVertexPosition(mesh, 1)})
+  end)
 end)
