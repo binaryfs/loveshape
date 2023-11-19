@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 local Shape = require(BASE .. "Shape")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
@@ -7,7 +8,7 @@ local utils = require(BASE .. "utils")
 --- @field protected _radius number
 local Circle = utils.class("loveshape.Circle", Shape)
 
---- @param radius number
+--- @param radius number The radius must be larger than 0
 --- @param pointsCount integer Number of points used to draw the circle
 --- @return loveshape.Circle
 --- @nodiscard
@@ -34,7 +35,7 @@ function Circle:getRadius()
   return self._radius
 end
 
---- @param radius number
+--- @param radius number The radius must be larger than 0
 --- @return self
 function Circle:setRadius(radius)
   assert(type(radius) == "number" and radius > 0)

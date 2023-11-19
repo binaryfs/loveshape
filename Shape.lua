@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 --- @type loveshape.Bounds
 local Bounds = require(BASE .. "Bounds")
 --- @type loveshape.Color
@@ -33,10 +34,8 @@ local lg = love.graphics
 --- @field protected _textureQuad loveshape.Bounds? Texture area to render on the mesh
 local Shape = utils.class("loveshape.Shape", Object)
 
-Shape.DEFAULT_BORDER_SMOOTHING = 1
-
 --- Initialize a new shape with the given amount of vertices.
---- @param vertexCount integer
+--- @param vertexCount integer The number of vertices must be at least 3
 --- @protected
 function Shape:_init(vertexCount)
   assert(type(vertexCount) == "number" and vertexCount >= 3)
@@ -45,51 +44,63 @@ function Shape:_init(vertexCount)
   self._borderMesh = nil
   self._borderWidth = 0
   self._borderColor = Color.new(1, 1, 1)
-  self._borderSmoothing = Shape.DEFAULT_BORDER_SMOOTHING
+  self._borderSmoothing = 1
   self._dirty = true
   self._bounds = Bounds.new()
   self._innerBounds = Bounds.new()
   self._textureQuad = nil
 end
 
---- @param r number Red component in the range 0-1!
+--- Set the color of the shape.
+---
+--- Shapes are white (1,1,1) by default.
+--- @param r number Red component in the range 0-1
 --- @param g number Green component in the range 0-1
 --- @param b number Blue component in the range 0-1
 --- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
 --- @overload fun(self: loveshape.Shape, rgba: table): loveshape.Shape
+--- @see loveshape.Shape.getFillColor
+--- @see loveshape.Shape.setBorderColor
 function Shape:setFillColor(r, g, b, a)
   self._fillColor:set(r, g, b, a)
   self:_updateFillColor()
   return self
 end
 
---- @return number red
---- @return number green
---- @return number blue
---- @return number alpha
+--- Get the color of the shape.
+--- @return number red Red component in the range 0-1
+--- @return number green Green component in the range 0-1
+--- @return number blue Blue component in the range 0-1
+--- @return number alpha Alpha component in the range 0-1
 --- @nodiscard
 function Shape:getFillColor()
   return self._fillColor:unpack()
 end
 
+--- Set the border color.
+---
+--- Borders are white (1,1,1) by default.
 --- @param r number Red component in the range 0-1
 --- @param g number Green component in the range 0-1
 --- @param b number Blue component in the range 0-1
 --- @param a number? Alpha component in the range 0-1 (default: 1)
 --- @return self
 --- @overload fun(self: loveshape.Shape, rgba: table): self
+--- @see loveshape.Shape.getBorderColor
+--- @see loveshape.Shape.setFillColor
 function Shape:setBorderColor(r, g, b, a)
   self._borderColor:set(r, g, b, a)
   self:_updateBorderColor()
   return self
 end
 
---- @return number red
---- @return number green
---- @return number blue
---- @return number alpha
+--- @return number red Red component in the range 0-1
+--- @return number green Green component in the range 0-1
+--- @return number blue Blue component in the range 0-1
+--- @return number alpha Alpha component in the range 0-1
 --- @nodiscard
+--- @see loveshape.Shape.setBorderColor
 function Shape:getBorderColor()
   return self._borderColor:unpack()
 end
@@ -97,9 +108,10 @@ end
 --- Set the width of the border.
 ---
 --- A positive value creates an outer border. A negative value creates an inner border.
---- A value equal to zero disables the border. The border width is 0 by default.
+--- A value equal to zero removes the border. The border width is 0 by default.
 --- @param width number
 --- @return self
+--- @see loveshape.Shape.getBorderWidth
 function Shape:setBorderWidth(width)
   assert(type(width) == "number")
 
@@ -113,12 +125,15 @@ end
 
 --- @return number width
 --- @nodiscard
+--- @see loveshape.Shape.setBorderWidth
 function Shape:getBorderWidth()
   return self._borderWidth
 end
 
+--- Set the amount of smoothing for borders. The default value is 1.
 --- @param smoothing number
 --- @return self
+--- @see loveshape.Shape.getBorderSmoothing
 function Shape:setBorderSmoothing(smoothing)
   assert(type(smoothing) == "number" and smoothing >= 0)
 
@@ -132,6 +147,7 @@ end
 
 --- @return number smoothing
 --- @nodiscard
+--- @see loveshape.Shape.setBorderSmoothing
 function Shape:getBorderSmoothing()
   return self._borderSmoothing
 end
@@ -160,6 +176,7 @@ end
 --- @return number width
 --- @return number height
 --- @nodiscard
+--- @see loveshape.Shape.getTransformedBounds
 function Shape:getBounds()
   self:_updateMeshes()
   return self._bounds:getRect()
@@ -176,6 +193,7 @@ end
 --- @return number width
 --- @return number height
 --- @nodiscard
+--- @see loveshape.Shape.getBounds
 function Shape:getTransformedBounds(transform)
   local bx, by, bw, bh = self:getBounds()
   local topLeftX, topLeftY = transform:transformPoint(bx, by)
@@ -194,6 +212,7 @@ end
 --- Get the texture that is rendered on the shape.
 --- @return (love.Texture)?
 --- @nodiscard
+--- @see loveshape.Shape.setTexture
 function Shape:getTexture()
   return self._mesh:getTexture()
 end
@@ -206,6 +225,8 @@ end
 --- @param texture love.Texture|nil
 --- @param setTextureQuad boolean? (default: false)
 --- @return self
+--- @see loveshape.Shape.getTexture
+--- @see loveshape.Shape.setTextureQuad
 function Shape:setTexture(texture, setTextureQuad)
   if texture then
     self._mesh:setTexture(texture)
@@ -226,6 +247,8 @@ end
 --- @param width number
 --- @param height number
 --- @return self
+--- @see loveshape.Shape.getTextureQuad
+--- @see loveshape.Shape.getTexture
 function Shape:setTextureQuad(x, y, width, height)
   if not self._textureQuad then
     self._textureQuad = Bounds.new()
@@ -243,6 +266,7 @@ end
 --- @return integer width
 --- @return integer height
 --- @nodiscard
+--- @see loveshape.Shape.setTextureQuad
 function Shape:getTextureQuad()
   if not self._textureQuad then
     return 0, 0, 0, 0
@@ -269,6 +293,7 @@ end
 --- Draw the shape on the screen.
 --- @param ... any Arguments for `love.graphics.draw`
 --- @return self
+--- @see loveshape.Shape.drawAligned
 function Shape:draw(...)
   self:_updateMeshes()
   lg.draw(self._mesh, ...)
@@ -289,6 +314,7 @@ end
 --- @param scaleX number? X scale (default: 1)
 --- @param scaleY number? Y scale (default: 1)
 --- @return self
+--- @see loveshape.Shape.draw
 function Shape:drawAligned(align, valign, x, y, angle, scaleX, scaleY)
   local offsetX, offsetY = 0, 0
   local boundsX, outerY, boundsWidth, boundsHeight = self._bounds:getRect()

@@ -7,11 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Unit tests
+- Unit tests based on loveunit
 - `Rectangle:getWidth` and `Rectangle:getHeight`
 - `RoundedRectangle:getCornerRadius` and `RoundedRectangle:getPointsPerCorner`
 - `Bounds:unpack` to get the dimensions of a bounds object
 - `Ellipse` class to draw elliptical shapes
+- New LÖVE demo
 
 ### Changed
 
@@ -19,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `utils.computeVertexNormal` does not return inverted normals anymore
 - Allow negative values for `Shape:setBorderWidth` to create inner borders
 - Exclude border smoothing from bounding rectangle calculation
+
+### Removed
+
+- `Shape.DEFAULT_BORDER_SMOOTHING`
 
 ### Fixed
 

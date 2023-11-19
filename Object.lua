@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
@@ -9,6 +10,7 @@ local utils = require(BASE .. "utils")
 --- @field protected _parentClass loveshape.Object
 local Object = utils.class("loveshape.Object")
 
+--- Get the type of the object as a string.
 --- @return string typename
 --- @nodiscard
 function Object:type()
