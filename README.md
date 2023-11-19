@@ -12,9 +12,10 @@ The following screenshot shows the LÖVE demo that is included in the loveshape 
 - Available shapes:
   - rectangles
   - rounded rectangles
-  - circles
+  - circles / regular polygons
+  - ellipses
   - convex polygons
-- Borders with adjustable width and smoothing
+- Outer and inner borders with adjustable width and smoothing
 - Fill and border colors
 - Textured shapes
 - Bounding rectangles
@@ -77,6 +78,62 @@ function love.draw()
   -- This method accepts the same arguments as love.graphics.draw()
   rect:draw(50, 50)
 end
+```
+
+### Borders
+
+Apply different kind of borders:
+
+```lua
+local rect = loveshape.Rectangle.new(200, 100)
+
+-- Positive values create an outer border.
+rect:setBorderWidth(10)
+
+-- Use negative values to create an inner border.
+rect:setBorderWidth(-6)
+
+-- Set border width to zero to remove the border.
+rect:setBorderWidth(0)
+
+-- Blur the border edges to make it smoother.
+rect:setBorderSmoothing(4)
+```
+
+### Textures
+
+Create a textured hexagon:
+
+```lua
+local image = love.graphics.newImage("path/to/image.png")
+local hexagon = loveshape.Circle.new(50, 6)
+
+-- If second argument is true, the texture coodinates of the shape are set
+-- automatically.
+hexagon:setTexture(image, true)
+
+-- Alternatively you can set them manually, e.g. to use an atlas image or to
+-- repeat the texture.
+hexagon:setTextureQuad(16, 16, 128, 128)
+
+-- Remove the texture.
+hexagon:setTexture(nil)
+```
+
+### Shapes
+
+Create a convex polygon:
+
+```lua
+local poly = loveshape.ConvexPolygon.new(4)
+
+-- Set points in clockwise order:
+poly:setPoint(1, 0, 0)
+poly:setPoint(2, 30, 30)
+poly:setPoint(3, 0, 90)
+poly:setPoint(4, -30, 30)
+
+assert(poly:isConvex(), "Polygon is not convex!")
 ```
 
 ### Demo
