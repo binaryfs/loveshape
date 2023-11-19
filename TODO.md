@@ -1,2 +1,1 @@
 - Add lines
-- Add draw modes for borders (solid, smooth, gradient). Solid and smooth are already implemented. Gradient would allow us to draw smoothed shapes (not only borders).

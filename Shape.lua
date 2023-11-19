@@ -23,11 +23,13 @@ local lg = love.graphics
 --- Represents the abstract base class for all shapes.
 --- @class loveshape.Shape: loveshape.Object
 --- @field protected _mesh love.Mesh
---- @field protected _fillColor loveshape.Color
---- @field protected _borderMesh love.Mesh?
+--- @field protected _fillColor loveshape.Color Mesh color
+--- @field protected _borderMesh love.Mesh? Mesh that represents the border/outline
 --- @field protected _borderWidth number
 --- @field protected _borderColor loveshape.Color
 --- @field protected _borderSmoothing number
+--- @field protected _edgeMesh love.Mesh? Mesh for rendering soft edges
+--- @field protected _edgeSmoothing number
 --- @field protected _dirty boolean If true, messes need to be rebuild
 --- @field protected _bounds loveshape.Bounds Bounds including the border
 --- @field protected _innerBounds loveshape.Bounds Bounds excluding the border
@@ -45,6 +47,8 @@ function Shape:_init(vertexCount)
   self._borderWidth = 0
   self._borderColor = Color.new(1, 1, 1)
   self._borderSmoothing = 1
+  self._edgeMesh = nil
+  self._edgeSmoothing = 1
   self._dirty = true
   self._bounds = Bounds.new()
   self._innerBounds = Bounds.new()
@@ -152,6 +156,32 @@ function Shape:getBorderSmoothing()
   return self._borderSmoothing
 end
 
+--- Set the amount of smoothing for the edges of the shape. The default value is 1.
+---
+--- Please note that smooth edges only work for borderless shapes. If your shape has
+--- a border, use `Shape.setBorderSmoothing` instead.
+--- @param smoothing number
+--- @return self
+--- @see loveshape.Shape.getEdgeSmoothing
+--- @see loveshape.Shape.setBorderSmoothing
+function Shape:setEdgeSmoothing(smoothing)
+  assert(type(smoothing) == "number" and smoothing >= 0)
+
+  if self._edgeSmoothing ~= smoothing then
+    self._edgeSmoothing = smoothing
+    self._dirty = true
+  end
+
+  return self
+end
+
+--- @return number smoothing
+--- @nodiscard
+--- @see loveshape.Shape.setEdgeSmoothing
+function Shape:getEdgeSmoothing()
+  return self._edgeSmoothing
+end
+
 --- Get the position of the specified point.
 --- @param index integer
 --- @return number x
@@ -170,7 +200,7 @@ end
 
 --- Get the axis-aligned bounding rectangle enclosing the shape.
 ---
---- The rectangle includes the border, but does not include boorder smoothing.
+--- The rectangle includes the border, but it neither includes boorder smoothing nor soft edges.
 --- @return number x
 --- @return number y
 --- @return number width
@@ -231,11 +261,19 @@ function Shape:setTexture(texture, setTextureQuad)
   if texture then
     self._mesh:setTexture(texture)
 
+    if self._edgeMesh then
+      self._edgeMesh:setTexture(texture)
+    end
+
     if setTextureQuad then
       self:setTextureQuad(0, 0, texture:getDimensions())
     end
   else
     self._mesh:setTexture()
+
+    if self._edgeMesh then
+      self._edgeMesh:setTexture()
+    end
   end
 
   return self
@@ -278,7 +316,9 @@ end
 --- @return love.Mesh mesh
 --- @nodiscard
 --- @see loveshape.Shape.getBorderMesh
+--- @see loveshape.Shape.getEdgeMesh
 function Shape:getMesh()
+  self:_updateMeshes()
   return self._mesh
 end
 
@@ -286,8 +326,20 @@ end
 --- @return (love.Mesh)? mesh The mesh or nil if the shape has no border
 --- @nodiscard
 --- @see loveshape.Shape.getMesh
+--- @see loveshape.Shape.getEdgeMesh
 function Shape:getBorderMesh()
+  self:_updateMeshes()
   return self._borderMesh
+end
+
+--- Get the internal mesh that is used to render the soft edges of the shape.
+--- @return (love.Mesh)? mesh The mesh or nil if the shape has no soft edges
+--- @nodiscard
+--- @see loveshape.Shape.getMesh
+--- @see loveshape.Shape.getBorderMesh
+function Shape:getEdgeMesh()
+  self:_updateMeshes()
+  return self._edgeMesh
 end
 
 --- Draw the shape on the screen.
@@ -300,6 +352,8 @@ function Shape:draw(...)
 
   if self._borderMesh then
     lg.draw(self._borderMesh, ...)
+  elseif self._edgeMesh then
+    lg.draw(self._edgeMesh, ...)
   end
 
   return self
@@ -358,6 +412,7 @@ function Shape:_updateMeshes()
 
   self:_updateFillColor()
   self:_updateBorderMesh()
+  self:_updateEdgeMesh()
   self:_updateTextureCoordinates()
   self._dirty = false
 end
@@ -387,7 +442,7 @@ function Shape:_updateBorderMesh()
     local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
     self._bounds:addPoint(vx, vy)
 
-    -- In same rare cases (e.g. pill-shaped meshes) adjacent vertices might share the same position.
+    -- In some rare cases (e.g. pill-shaped meshes) adjacent vertices might share the same position.
     -- In those cases we have to find the closest distinct vertex, in order to compute the normals.
     local px, py = utils.previousDistinctVertexPosition(self._mesh, vertex)
     local nx, ny = utils.nextDistinctVertexPosition(self._mesh, vertex)
@@ -491,6 +546,46 @@ function Shape:_createBorderMesh(borderVertexCount)
   return borderMesh
 end
 
+--- Update the mesh that is used for rendering soft edges.
+--- @protected
+function Shape:_updateEdgeMesh()
+  if self._edgeSmoothing == 0 or self._borderWidth ~= 0 then
+    self._edgeMesh = nil
+    return
+  end
+
+  local vertexCount = self._mesh:getVertexCount()
+  local edgeVertexCount = (vertexCount * 2) + 2
+
+  -- Create a new mesh if necessary
+  if self._edgeMesh == nil or self._edgeMesh:getVertexCount() ~= edgeVertexCount then
+    self._edgeMesh = love.graphics.newMesh(edgeVertexCount, "strip", "dynamic")
+    self._edgeMesh:setTexture(self._mesh:getTexture())
+  end
+
+  for vertex = 1, vertexCount do
+    local vx, vy = self._mesh:getVertexAttribute(vertex, POSITION_INDEX)
+    local px, py = utils.previousDistinctVertexPosition(self._mesh, vertex)
+    local nx, ny = utils.nextDistinctVertexPosition(self._mesh, vertex)
+
+    local normalX, normalY = utils.computeVertexNormal(px, py, vx, vy, nx, ny, self._edgeSmoothing)
+    local edgeVertex = (vertex - 1) * 2 + 1
+    self._edgeMesh:setVertexAttribute(edgeVertex, POSITION_INDEX, vx, vy)
+    self._edgeMesh:setVertexAttribute(edgeVertex + 1, POSITION_INDEX, vx + normalX, vy + normalY)
+  end
+
+  -- Close the mesh loop.
+  for vertex = 0, 1 do
+    self._edgeMesh:setVertexAttribute(
+      edgeVertexCount - vertex,
+      POSITION_INDEX,
+      self._edgeMesh:getVertexAttribute(2 - vertex, POSITION_INDEX)
+    )
+  end
+
+  self:_updateEdgeColor()
+end
+
 --- @protected
 function Shape:_updateFillColor()
   for vertex = 1, self._mesh:getVertexCount() do
@@ -526,6 +621,21 @@ function Shape:_updateBorderColor()
   end
 end
 
+--- Update the color of the edge mesh.
+--- @protected
+function Shape:_updateEdgeColor()
+  if not self._edgeMesh then
+    return
+  end
+
+  local r, g, b, a = self._fillColor:unpack()
+
+  for vertex = 1, self._edgeMesh:getVertexCount(), 2 do
+    self._edgeMesh:setVertexAttribute(vertex, COLOR_INDEX, r, g, b, a)
+    self._edgeMesh:setVertexAttribute(vertex + 1, COLOR_INDEX, r, g, b, 0)
+  end
+end
+
 --- @protected
 function Shape:_updateTextureCoordinates()
   local texture = self._mesh:getTexture()
@@ -545,6 +655,12 @@ function Shape:_updateTextureCoordinates()
     local v = (qy + qh * ((vy - by) / bh)) / texture:getHeight()
 
     self._mesh:setVertexAttribute(vertex, UV_INDEX, u, v)
+
+    if self._edgeMesh then
+      local edgeVertex = (vertex - 1) * 2 + 1
+      self._edgeMesh:setVertexAttribute(edgeVertex, UV_INDEX, u, v)
+      self._edgeMesh:setVertexAttribute(edgeVertex + 1, UV_INDEX, u, v)
+    end
   end
 end
 

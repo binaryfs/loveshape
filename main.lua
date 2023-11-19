@@ -23,6 +23,7 @@ local shapesDemo = {
 
     self.triangle = loveshape.Circle.new(60, 3)
     self.triangle:setFillColor(Palette.GREEN)
+    self.triangle:setEdgeSmoothing(10)
 
     self.pentagon = loveshape.Circle.new(70, 5)
     self.pentagon:setFillColor(Palette.PINK)

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `RoundedRectangle:getCornerRadius` and `RoundedRectangle:getPointsPerCorner`
 - `Bounds:unpack` to get the dimensions of a bounds object
 - `Ellipse` class to draw elliptical shapes
+- `Shape:setEdgeSmoothing`, `Shape:getEdgeSmoothing` and `Shape:getEdgeMesh` to control soft edges
 - New LÖVE demo
 
 ### Changed
@@ -20,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `utils.computeVertexNormal` does not return inverted normals anymore
 - Allow negative values for `Shape:setBorderWidth` to create inner borders
 - Exclude border smoothing from bounding rectangle calculation
+- `Shape:getMesh` and `Shape:getBorderMesh` now update the internal meshes before returning them
 
 ### Removed
 
