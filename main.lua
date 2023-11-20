@@ -104,11 +104,11 @@ local bordersDemo = {
     self.rects[3]:setBorderWidth(10)
     self.rects[3]:setBorderColor(Palette.GREEN)
 
-    self.rects[4] = loveshape.Rectangle.new(100, 50)
+    self.rects[4] = loveshape.Rectangle.new(100, 100)
     self.rects[4]:setFillColor(Palette.PURPLE)
-    self.rects[4]:setBorderWidth(1)
-    self.rects[4]:setBorderColor(Palette.PURPLE)
-    self.rects[4]:setBorderSmoothing(14)
+    self.rects[4]:setBorderWidth(5)
+    self.rects[4]:setBorderColor(Palette.GREEN)
+    self.rects[4]:setBorderSmoothing(10)
 
     self.circle = loveshape.Circle.new(100, 100)
     self.circle:setFillColor(Palette.PURPLE)
@@ -123,12 +123,12 @@ local bordersDemo = {
   end,
 
   draw = function (self)
-    self.rects[1]:draw(80, 100)
-    self.rects[2]:draw(240, 100)
-    self.rects[3]:draw(400, 100)
-    self.rects[4]:draw(600, 130)
-    self.circle:draw(240, 400)
-    self.rounded:draw(440, 300)
+    self.rects[1]:draw(80, 150)
+    self.rects[2]:draw(240, 150)
+    self.rects[3]:draw(400, 150)
+    self.rects[4]:draw(560, 150)
+    self.circle:draw(240, 450)
+    self.rounded:draw(440, 400)
   end,
 }
 
