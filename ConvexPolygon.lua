@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 local Shape = require(BASE .. "Shape")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")

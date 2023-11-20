@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 local Object = require(BASE .. "Object")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
@@ -21,10 +22,10 @@ function Color.new(r, g, b, a)
     r, g, b, a = unpack(r)
   end
   return setmetatable({
-    assert(r, "red required"),
-    assert(g, "green required"),
-    assert(b, "blue required"),
-    a or 1
+    utils.clamp(assert(r, "red required"), 0, 1),
+    utils.clamp(assert(g, "green required"), 0, 1),
+    utils.clamp(assert(b, "blue required"), 0, 1),
+    utils.clamp(a or 1, 0, 1)
   }, Color)
 end
 
@@ -39,10 +40,10 @@ function Color:set(r, g, b, a)
     r, g, b, a = unpack(r)
   end
 
-  self[1] = assert(r, "red required")
-  self[2] = assert(g, "green required")
-  self[3] = assert(b, "blue required")
-  self[4] = a or 1
+  self[1] = utils.clamp(assert(r, "red required"), 0, 1)
+  self[2] = utils.clamp(assert(g, "green required"), 0, 1)
+  self[3] = utils.clamp(assert(b, "blue required"), 0, 1)
+  self[4] = utils.clamp(a or 1, 0, 1)
 
   return self
 end

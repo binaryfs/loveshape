@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 local Rectangle = require(BASE .. "Rectangle")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
@@ -39,6 +40,18 @@ function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
   Rectangle._init(self, pointsPerCorner * 4, width, height)
   self._cornerRadius = cornerRadius
   self._pointsPerCorner = pointsPerCorner
+end
+
+--- @return number cornerRadius
+--- @nodiscard
+function RoundedRectangle:getCornerRadius()
+  return self._cornerRadius
+end
+
+--- @return number pointsPerCorner
+--- @nodiscard
+function RoundedRectangle:getPointsPerCorner()
+  return self._pointsPerCorner
 end
 
 --- Get the position of the specified point.

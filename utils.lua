@@ -1,3 +1,5 @@
+local abs = math.abs
+
 --- Internal utility functions for the loveshape library.
 --- @class loveshape.utils
 local utils = {}
@@ -24,6 +26,27 @@ function utils.class(name, parent)
   newClass.__index = newClass
 
   return newClass
+end
+
+--- Clamp a value between a lower an an upper bound.
+--- @param value number
+--- @param min number The lower bound
+--- @param max number The upper bound
+--- @return number clampedValue
+--- @nodiscard
+function utils.clamp(value, min, max)
+  return value < min and min or (value > max and max or value)
+end
+
+--- Return whether the two numbers `a` and `b` are close to each other.
+--- @param a number
+--- @param b number
+--- @param epsilon number? Tolerated margin of error (default: 1e-09)
+--- @return boolean equal
+--- @nodiscard
+function utils.almostEqual(a, b, epsilon)
+  epsilon = epsilon or 1e-09
+  return abs(a - b) <= epsilon * math.max(abs(a), abs(b))
 end
 
 --- Return a vector with a certain angle.
@@ -77,6 +100,17 @@ function utils.vecCross(ax, ay, bx, by)
   return ax * by - ay * bx
 end
 
+--- Determine if two vectors are equal.
+--- @param ax number
+--- @param ay number
+--- @param bx number
+--- @param by number
+--- @return boolean
+--- @nodiscard
+function utils.vecEquals(ax, ay, bx, by)
+  return utils.almostEqual(ax, bx) and utils.almostEqual(ay, by)
+end
+
 --- Given two edges, compute the normal of their shared vertex.
 ---
 --- This function expects the points in clockwise order.
@@ -86,11 +120,13 @@ end
 --- @param by number Y position of the shared vertex
 --- @param cx number X position of the end point of the second edge.
 --- @param cy number Y position of the end point of the second edge.
---- @param length number Desired length of the normal
+--- @param length number? Desired length of the normal (default: 1)
 --- @return number normalX
 --- @return number normalY
 --- @nodiscard
 function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
+  length = length or 1
+
   -- Edges from a to b and b to c.
   local edgeAx, edgeAy = utils.vecNormalize(bx - ax, by - ay)
   local edgeBx, edgeBy = utils.vecNormalize(cx - bx, cy - by)
@@ -98,16 +134,64 @@ function utils.computeVertexNormal(ax, ay, bx, by, cx, cy, length)
   local crossProduct = utils.vecCross(edgeAx, edgeAy, edgeBx, edgeBy)
   local normalX, normalY
 
-  if math.abs(crossProduct) > 1e-09 then
-    normalX = length * (edgeBx - edgeAx) / crossProduct
-    normalY = length * (edgeBy - edgeAy) / crossProduct
+  if abs(crossProduct) > 1e-09 then
+    normalX = (edgeAx - edgeBx) / crossProduct
+    normalY = (edgeAy - edgeBy) / crossProduct
   else
     -- Special case when edge normals are almost perpendicular.
-    normalX = -(length * edgeBy)
-    normalY = length * edgeBx
+    normalX = edgeBy
+    normalY = -edgeBx
   end
 
-  return normalX, normalY
+  return normalX * length, normalY * length
+end
+
+--- Get the next distinct vertex position from a mesh.
+---
+--- If two vertices share the same position, they are considered not distinct.
+--- @param mesh love.Mesh
+--- @param vertex integer
+--- @return number x
+--- @return number y
+--- @nodiscard
+function utils.nextDistinctVertexPosition(mesh, vertex)
+  local startVertex = vertex
+  local vx, vy = mesh:getVertexAttribute(vertex, 1)
+
+  repeat
+    vertex = vertex == mesh:getVertexCount() and 1 or vertex + 1
+    local nx, ny = mesh:getVertexAttribute(vertex, 1)
+
+    if not utils.vecEquals(nx, ny, vx, vy) then
+      return nx, ny
+    end
+  until vertex == startVertex
+
+  return vx, vy
+end
+
+--- Get the previous distinct vertex position from a mesh.
+---
+--- If two vertices share the same position, they are considered not distinct.
+--- @param mesh love.Mesh
+--- @param vertex integer
+--- @return number x
+--- @return number y
+--- @nodiscard
+function utils.previousDistinctVertexPosition(mesh, vertex)
+  local startVertex = vertex
+  local vx, vy = mesh:getVertexAttribute(vertex, 1)
+
+  repeat
+    vertex = vertex == 1 and mesh:getVertexCount() or vertex - 1
+    local px, py = mesh:getVertexAttribute(vertex, 1)
+
+    if not utils.vecEquals(px, py, vx, vy) then
+      return px, py
+    end
+  until vertex == startVertex
+
+  return vx, vy
 end
 
 return utils

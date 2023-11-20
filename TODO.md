@@ -1,3 +1,1 @@
-- Add ellipses
-- Add unit tests (without external dependencies)
-- Add draw modes for borders (solid, smooth, gradient). Solid and smooth are already implemented. Gradient would allow us to draw smoothed shapes (not only borders).
+- Add lines

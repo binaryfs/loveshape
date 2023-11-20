@@ -1,4 +1,5 @@
 local BASE = (...):gsub("[^%.]*$", "")
+
 local Object = require(BASE .. "Object")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
@@ -22,6 +23,7 @@ function Bounds.new()
   return self:reset()
 end
 
+--- Set the dimensions of the bounds.
 --- @param minX number
 --- @param minY number
 --- @param maxX number
@@ -33,6 +35,16 @@ function Bounds:set(minX, minY, maxX, maxY)
   self.maxX = assert(maxX, "maxX required")
   self.maxY = assert(maxY, "maxY required")
   return self
+end
+
+--- Get the dimensions of the bounds.
+--- @return number minX
+--- @return number minY
+--- @return number maxX
+--- @return number maxY
+--- @nodiscard
+function Bounds:unpack()
+  return self.minX, self.minY, self.maxX, self.maxY
 end
 
 --- Get a rectangle of the bounds.
@@ -61,6 +73,7 @@ function Bounds:reset()
   return self
 end
 
+--- Copy the dimensions of the given bounds into this bounds.
 --- @param other loveshape.Bounds
 --- @return self
 function Bounds:copyFrom(other)
