@@ -4,6 +4,8 @@ local Rectangle = require(BASE .. "Rectangle")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
+local HALF_PI = math.pi / 2
+
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
 --- @field protected _cornerRadius number
@@ -15,10 +17,12 @@ local RoundedRectangle = utils.class("loveshape.RoundedRectangle", Rectangle)
 --- The corner radius should be smaller than the half width and the half height of the
 --- rectangle. If this is not the case, the corner radius is reduced automatically
 --- when the rectangle is drawn.
+---
+--- If `pointsPerCorner` is not specified, a default value is computed automatically.
 --- @param width number
 --- @param height number
 --- @param cornerRadius number
---- @param pointsPerCorner integer Number of points to represent a rounded corner
+--- @param pointsPerCorner? integer Number of points to represent a rounded corner
 --- @return loveshape.RoundedRectangle
 --- @nodiscard
 function RoundedRectangle.new(width, height, cornerRadius, pointsPerCorner)
@@ -31,11 +35,16 @@ end
 --- @param width number
 --- @param height number
 --- @param cornerRadius number
---- @param pointsPerCorner integer
+--- @param pointsPerCorner? integer
 --- @protected
 function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
   assert(type(cornerRadius) == "number" and cornerRadius > 0)
-  assert(type(pointsPerCorner) == "number" and pointsPerCorner >= 2)
+
+  if pointsPerCorner then
+    assert(type(pointsPerCorner) == "number" and pointsPerCorner >= 2)
+  else
+    pointsPerCorner = math.ceil(utils.computeEllipsePoints(cornerRadius, cornerRadius) / 4)
+  end
 
   Rectangle._init(self, pointsPerCorner * 4, width, height)
   self._cornerRadius = cornerRadius
@@ -84,9 +93,9 @@ function RoundedRectangle:getPoint(index)
     centerY = self._height - cornerRadius
   end
 
-  local anglePerSegment = (math.pi / 2) / (self._pointsPerCorner - 1)
+  local anglePerSegment = HALF_PI / (self._pointsPerCorner - 1)
   local cornerPointIndex = (index - 1) % self._pointsPerCorner
-  local cornerAngleOffset = (math.pi / 2) * (corner + 1)
+  local cornerAngleOffset = HALF_PI * (corner + 1)
   local x, y = utils.vecFromAngle(anglePerSegment * cornerPointIndex + cornerAngleOffset, cornerRadius)
 
   return centerX + x, centerY + y

@@ -1,7 +1,7 @@
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 local utils = require("utils")
 
-local test = loveunit.newTestCase("utils")
+local test = lovecase.newTestSet("utils")
 
 test:group("clamp()", function ()
   test:run("should clamp a value between a lower an an upper bound", function (value, min, max, result)
@@ -130,3 +130,5 @@ test:group("previousDistinctVertexPosition()", function ()
     test:assertEqual({0, 0}, {utils.previousDistinctVertexPosition(mesh, 1)})
   end)
 end)
+
+return test

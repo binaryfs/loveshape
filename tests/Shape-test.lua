@@ -1,8 +1,8 @@
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 local Rectangle = require("Rectangle")
 local Shape = require("Shape")
 
-local test = loveunit.newTestCase("Shape")
+local test = lovecase.newTestSet("Shape")
 
 --- @return loveshape.Shape
 --- @nodiscard
@@ -221,3 +221,5 @@ test:group("getEdgeMesh()", function ()
     test:assertEqual(nil, shape:getEdgeMesh())
   end)
 end)
+
+return test

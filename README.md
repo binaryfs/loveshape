@@ -26,7 +26,7 @@ The shapes are based on meshes, so you can do anything with them that you can do
 
 ## Requirements
 
-loveshape requires LÖVE 11.4 and has no other external dependencies.
+loveshape requires LÖVE 11.4+ and has no other external dependencies.
 
 ## Integration
 
@@ -218,6 +218,8 @@ And you're done. Now you can use your diamond shape like any other shape from lo
 ### Demo
 
 Have a look at the LÖVE demo (`main.lua`) to find many more examples.
+
+If you would like to run the unit tests, download [lovecase](https://github.com/binaryfs/lovecase) and copy the files into the subdirectory `libs.lovecase`. When you start the LÖVE demo, the unit tests are run automatically.
 
 ## Credits
 

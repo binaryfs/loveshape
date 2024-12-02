@@ -67,8 +67,10 @@ end
 --- @see loveshape.Shape.getFillColor
 --- @see loveshape.Shape.setBorderColor
 function Shape:setFillColor(r, g, b, a)
-  self._fillColor:set(r, g, b, a)
-  self:_updateFillColor()
+  if not self._fillColor:equal(r, g, b, a) then
+    self._fillColor:set(r, g, b, a)
+    self:_updateFillColor()
+  end
   return self
 end
 
@@ -94,8 +96,10 @@ end
 --- @see loveshape.Shape.getBorderColor
 --- @see loveshape.Shape.setFillColor
 function Shape:setBorderColor(r, g, b, a)
-  self._borderColor:set(r, g, b, a)
-  self:_updateBorderColor()
+  if not self._borderColor:equal(r, g, b, a) then
+    self._borderColor:set(r, g, b, a)
+    self:_updateBorderColor()
+  end
   return self
 end
 
@@ -606,10 +610,11 @@ function Shape:_updateBorderColor()
     return
   end
 
+  local r, g, b, a = self._borderColor:unpack()
+
   -- Anti-aliased borders
   for vertex = 1, self._mesh:getVertexCount() + 1 do
     local borderVertex = (vertex - 1) * SMOOTH_BORDER_STRIPS + 1
-    local r, g, b, a = self._borderColor:unpack()
 
     -- Solid core
     self._borderMesh:setVertexAttribute(borderVertex + 1, COLOR_INDEX, r, g, b, a)

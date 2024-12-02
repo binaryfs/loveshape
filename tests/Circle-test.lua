@@ -1,7 +1,7 @@
 local Circle = require("Circle")
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 
-local test = loveunit.newTestCase("Circle")
+local test = lovecase.newTestSet("Circle")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -59,3 +59,5 @@ test:group("getBounds()", function ()
     test:assertEqual({-100, -100, 200, 200}, {circle:getBounds()})
   end)
 end)
+
+return test

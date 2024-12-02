@@ -1,5 +1,7 @@
+-- LÖVE demo
+
 local loveshape = require("init")
-local loveunit = require("loveunit")
+local lovecaseAvailable, lovecase = pcall(require, "libs.lovecase")
 
 local Palette = {
   PURPLE = {137 / 255, 33 / 255, 194 / 255},
@@ -18,8 +20,11 @@ local shapesDemo = {
     self.rect = loveshape.Rectangle.new(300, 200)
     self.rect:setFillColor(Palette.PURPLE)
 
-    self.circle = loveshape.Circle.new(180, 40)
+    self.circle = loveshape.Circle.new(180)
     self.circle:setFillColor(Palette.YELLOW)
+
+    self.ellipse = loveshape.Ellipse.new(100, 60)
+    self.ellipse:setFillColor(Palette.PURPLE)
 
     self.triangle = loveshape.Circle.new(60, 3)
     self.triangle:setFillColor(Palette.GREEN)
@@ -28,10 +33,10 @@ local shapesDemo = {
     self.pentagon = loveshape.Circle.new(70, 5)
     self.pentagon:setFillColor(Palette.PINK)
 
-    self.rounded = loveshape.RoundedRectangle.new(200, 100, 14, 4)
+    self.rounded = loveshape.RoundedRectangle.new(200, 100, 14)
     self.rounded:setFillColor(Palette.PINK)
 
-    self.pill = loveshape.RoundedRectangle.new(200, 60, 30, 6)
+    self.pill = loveshape.RoundedRectangle.new(200, 60, 30)
     self.pill:setFillColor(Palette.ORANGE)
 
     self.bevel = loveshape.RoundedRectangle.new(200, 120, 20, 2)
@@ -47,6 +52,7 @@ local shapesDemo = {
 
   draw = function (self)
     self.circle:draw(500, 500)
+    self.ellipse:draw(680, 480)
     self.rect:draw(100, 100)
     self.triangle:draw(400, 200)
     self.pentagon:draw(600, 160)
@@ -236,17 +242,21 @@ local demos = {
 local demoIndex = 1
 
 local function runUnitTests()
-  loveunit.runTestFiles("tests")
-  local success, report = loveunit.report()
+  local report = lovecase.newTestReport({ onlyFailures = true })
+  lovecase.runAllTestFiles("tests", true, nil, report)
 
-  if not success then
-    print(report)
+  if report:isFailed() then
+    print(report:printResults())
     error("Unit tests failed!")
   end
 end
 
 function love.load()
-  runUnitTests()
+  if lovecaseAvailable then
+    runUnitTests()
+  else
+    print("lovecase is not available - skipping unit tests")
+  end
 
   for index = 1, #demos do
     demos[index]:init()

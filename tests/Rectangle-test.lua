@@ -1,7 +1,7 @@
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 local Rectangle = require("Rectangle")
 
-local test = loveunit.newTestCase("Rectangle")
+local test = lovecase.newTestSet("Rectangle")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -103,3 +103,5 @@ test:group("getBounds()", function ()
     test:assertEqual({0, 0, 100, 200}, {rect:getBounds()})
   end)
 end)
+
+return test

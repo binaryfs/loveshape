@@ -1,7 +1,7 @@
 local Ellipse = require("Ellipse")
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 
-local test = loveunit.newTestCase("Ellipse")
+local test = lovecase.newTestSet("Ellipse")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -65,3 +65,5 @@ test:group("getBounds()", function ()
     test:assertAlmostEqual({-12, -6, 24, 12}, {ellipse:getBounds()})
   end)
 end)
+
+return test

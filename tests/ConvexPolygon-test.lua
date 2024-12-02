@@ -1,7 +1,7 @@
 local ConvexPolygon = require("ConvexPolygon")
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 
-local test = loveunit.newTestCase("ConvexPolygon")
+local test = lovecase.newTestSet("ConvexPolygon")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -65,3 +65,5 @@ test:group("isConvex()", function ()
     test:assertFalse(poly:isConvex())
   end)
 end)
+
+return test
