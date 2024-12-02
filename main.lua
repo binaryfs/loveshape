@@ -20,8 +20,11 @@ local shapesDemo = {
     self.rect = loveshape.Rectangle.new(300, 200)
     self.rect:setFillColor(Palette.PURPLE)
 
-    self.circle = loveshape.Circle.new(180, 40)
+    self.circle = loveshape.Circle.new(180)
     self.circle:setFillColor(Palette.YELLOW)
+
+    self.ellipse = loveshape.Ellipse.new(100, 60)
+    self.ellipse:setFillColor(Palette.PURPLE)
 
     self.triangle = loveshape.Circle.new(60, 3)
     self.triangle:setFillColor(Palette.GREEN)
@@ -30,7 +33,7 @@ local shapesDemo = {
     self.pentagon = loveshape.Circle.new(70, 5)
     self.pentagon:setFillColor(Palette.PINK)
 
-    self.rounded = loveshape.RoundedRectangle.new(200, 100, 14, 4)
+    self.rounded = loveshape.RoundedRectangle.new(200, 100, 14)
     self.rounded:setFillColor(Palette.PINK)
 
     self.pill = loveshape.RoundedRectangle.new(200, 60, 30)
@@ -49,6 +52,7 @@ local shapesDemo = {
 
   draw = function (self)
     self.circle:draw(500, 500)
+    self.ellipse:draw(680, 480)
     self.rect:draw(100, 100)
     self.triangle:draw(400, 200)
     self.pentagon:draw(600, 160)

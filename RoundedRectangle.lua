@@ -5,11 +5,6 @@ local Rectangle = require(BASE .. "Rectangle")
 local utils = require(BASE .. "utils")
 
 local HALF_PI = math.pi / 2
-local MIN_CORNER_POINTS = 4
-local MAX_CORNER_POINTS = 64
--- Scaling factor for when corner points are computed automatically.
--- The higher the value, the smoother the corners.
-local CORNER_RADIUS_FACTOR = 0.3
 
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
@@ -48,10 +43,7 @@ function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
   if pointsPerCorner then
     assert(type(pointsPerCorner) == "number" and pointsPerCorner >= 2)
   else
-    -- Compute points per corner automatically if not specified
-    pointsPerCorner = utils.clamp(
-      math.ceil(CORNER_RADIUS_FACTOR * cornerRadius), MIN_CORNER_POINTS, MAX_CORNER_POINTS
-    )
+    pointsPerCorner = math.ceil(utils.computeEllipsePoints(cornerRadius, cornerRadius) / 4)
   end
 
   Rectangle._init(self, pointsPerCorner * 4, width, height)

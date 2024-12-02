@@ -1,4 +1,5 @@
 local abs = math.abs
+local ceil = math.ceil
 local cos = math.cos
 local max = math.max
 local sin = math.sin
@@ -196,6 +197,16 @@ function utils.previousDistinctVertexPosition(mesh, vertex)
   until vertex == startVertex
 
   return vx, vy
+end
+
+--- Compute the optimal number of points to construct the specified ellipse. 
+--- @param radiusX number
+--- @param radiusY number
+--- @return integer
+--- @nodiscard
+function utils.computeEllipsePoints(radiusX, radiusY)
+  local BASE_CIRCLE_POINTS = 8
+  return ceil(BASE_CIRCLE_POINTS + sqrt((radiusX + radiusY) / 0.2))
 end
 
 return utils

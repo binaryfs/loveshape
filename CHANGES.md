@@ -9,11 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Small code optimizations
 - `Color:equal` to check if two colors are equal
+- `utils.computeEllipsePoints` to compute the optimal number of points to draw an ellipse or circle
 
 ### Changed
 
 - Only update meshes in `Shape:setFillColor` and `Shape:setBorderColor` when a new color is set
 - Compute `pointsPerCorner` automatically if not specified in `RoundedRectangle.new`
+- Compute `pointsCount` automatically if not specified in `Circle.new` and `Ellipse.new`
 
 ## [1.1.0] - 2023-11-20
 

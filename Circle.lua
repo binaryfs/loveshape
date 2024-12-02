@@ -10,8 +10,11 @@ local TWO_PI = math.pi * 2
 --- @field protected _radius number
 local Circle = utils.class("loveshape.Circle", Shape)
 
+--- Create a new circle with the specified radius.
+---
+--- If `pointsCount` is not specified, a default value is computed automatically.
 --- @param radius number The radius must be larger than 0
---- @param pointsCount integer Number of points used to draw the circle
+--- @param pointsCount? integer Number of points used to draw the circle
 --- @return loveshape.Circle
 --- @nodiscard
 function Circle.new(radius, pointsCount)
@@ -22,10 +25,14 @@ function Circle.new(radius, pointsCount)
 end
 
 --- @param radius number
---- @param pointsCount integer
+--- @param pointsCount? integer
 --- @protected
 function Circle:_init(radius, pointsCount)
   assert(type(radius) == "number" and radius > 0)
+
+  if not pointsCount then
+    pointsCount = utils.computeEllipsePoints(radius, radius)
+  end
 
   Shape._init(self, pointsCount)
   self._radius = radius
