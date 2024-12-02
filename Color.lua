@@ -59,4 +59,18 @@ function Color:unpack()
   return self[1], self[2], self[3], self[4]
 end
 
+--- Determine if the color is equal to another color.
+--- @param r number
+--- @param g number
+--- @param b number
+--- @param a number? (default: 1)
+--- @return boolean
+--- @overload fun(self: loveshape.Color, rgba: table): boolean
+function Color:equal(r, g, b, a)
+  if type(r) == "table" then
+    r, g, b, a = unpack(r)
+  end
+  return self[1] == r and self[2] == g and self[3] == b and self[4] == (a or 1)
+end
+
 return Color
