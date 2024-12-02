@@ -4,6 +4,8 @@ local Shape = require(BASE .. "Shape")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
+local TWO_PI = math.pi * 2
+
 --- @class loveshape.Ellipse: loveshape.Shape
 --- @field protected _radiusX number Horizontal radius
 --- @field protected _radiusY number Vertical radius
@@ -74,7 +76,7 @@ function Ellipse:getPoint(index)
     error("Invalid point index: " .. tostring(index))
   end
 
-  local angle = (math.pi * 2) / pointsCount
+  local angle = TWO_PI / pointsCount
   local x, y = utils.vecFromAngle(angle * (index - 1))
 
   return x * self._radiusX, y * self._radiusY

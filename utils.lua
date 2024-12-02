@@ -1,4 +1,8 @@
 local abs = math.abs
+local cos = math.cos
+local max = math.max
+local sin = math.sin
+local sqrt = math.sqrt
 
 --- Internal utility functions for the loveshape library.
 --- @class loveshape.utils
@@ -46,7 +50,7 @@ end
 --- @nodiscard
 function utils.almostEqual(a, b, epsilon)
   epsilon = epsilon or 1e-09
-  return abs(a - b) <= epsilon * math.max(abs(a), abs(b))
+  return abs(a - b) <= epsilon * max(abs(a), abs(b))
 end
 
 --- Return a vector with a certain angle.
@@ -57,7 +61,7 @@ end
 --- @nodiscard
 function utils.vecFromAngle(angle, length)
   length = length or 1
-  return math.cos(angle) * length, math.sin(angle) * length
+  return cos(angle) * length, sin(angle) * length
 end
 
 --- Return the length of a vector.
@@ -66,7 +70,7 @@ end
 --- @return number length
 --- @nodiscard
 function utils.vecLength(x, y)
-  return math.sqrt(x * x + y * y)
+  return sqrt(x * x + y * y)
 end
 
 --- Normalize a vector to a certain length.

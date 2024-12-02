@@ -4,6 +4,8 @@ local Object = require(BASE .. "Object")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
+local clamp = utils.clamp
+
 --- Represents an RGBA color. Each color component is given as a floating point
 --- value in the range from 0 to 1.
 ---
@@ -22,10 +24,10 @@ function Color.new(r, g, b, a)
     r, g, b, a = unpack(r)
   end
   return setmetatable({
-    utils.clamp(assert(r, "red required"), 0, 1),
-    utils.clamp(assert(g, "green required"), 0, 1),
-    utils.clamp(assert(b, "blue required"), 0, 1),
-    utils.clamp(a or 1, 0, 1)
+    clamp(assert(r, "red required"), 0, 1),
+    clamp(assert(g, "green required"), 0, 1),
+    clamp(assert(b, "blue required"), 0, 1),
+    clamp(a or 1, 0, 1)
   }, Color)
 end
 
@@ -40,10 +42,10 @@ function Color:set(r, g, b, a)
     r, g, b, a = unpack(r)
   end
 
-  self[1] = utils.clamp(assert(r, "red required"), 0, 1)
-  self[2] = utils.clamp(assert(g, "green required"), 0, 1)
-  self[3] = utils.clamp(assert(b, "blue required"), 0, 1)
-  self[4] = utils.clamp(a or 1, 0, 1)
+  self[1] = clamp(assert(r, "red required"), 0, 1)
+  self[2] = clamp(assert(g, "green required"), 0, 1)
+  self[3] = clamp(assert(b, "blue required"), 0, 1)
+  self[4] = clamp(a or 1, 0, 1)
 
   return self
 end

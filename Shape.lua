@@ -606,10 +606,11 @@ function Shape:_updateBorderColor()
     return
   end
 
+  local r, g, b, a = self._borderColor:unpack()
+
   -- Anti-aliased borders
   for vertex = 1, self._mesh:getVertexCount() + 1 do
     local borderVertex = (vertex - 1) * SMOOTH_BORDER_STRIPS + 1
-    local r, g, b, a = self._borderColor:unpack()
 
     -- Solid core
     self._borderMesh:setVertexAttribute(borderVertex + 1, COLOR_INDEX, r, g, b, a)

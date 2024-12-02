@@ -4,6 +4,8 @@ local Rectangle = require(BASE .. "Rectangle")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
+local HALF_PI = math.pi / 2
+
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
 --- @field protected _cornerRadius number
@@ -84,9 +86,9 @@ function RoundedRectangle:getPoint(index)
     centerY = self._height - cornerRadius
   end
 
-  local anglePerSegment = (math.pi / 2) / (self._pointsPerCorner - 1)
+  local anglePerSegment = HALF_PI / (self._pointsPerCorner - 1)
   local cornerPointIndex = (index - 1) % self._pointsPerCorner
-  local cornerAngleOffset = (math.pi / 2) * (corner + 1)
+  local cornerAngleOffset = HALF_PI * (corner + 1)
   local x, y = utils.vecFromAngle(anglePerSegment * cornerPointIndex + cornerAngleOffset, cornerRadius)
 
   return centerX + x, centerY + y

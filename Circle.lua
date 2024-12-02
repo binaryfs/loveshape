@@ -4,6 +4,8 @@ local Shape = require(BASE .. "Shape")
 --- @type loveshape.utils
 local utils = require(BASE .. "utils")
 
+local TWO_PI = math.pi * 2
+
 --- @class loveshape.Circle: loveshape.Shape
 --- @field protected _radius number
 local Circle = utils.class("loveshape.Circle", Shape)
@@ -62,7 +64,7 @@ function Circle:getPoint(index)
     error("Invalid point index: " .. tostring(index))
   end
 
-  local angle = (math.pi * 2) / pointsCount
+  local angle = TWO_PI / pointsCount
   return utils.vecFromAngle(angle * (index - 1), self._radius)
 end
 

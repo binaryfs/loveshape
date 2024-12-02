@@ -26,7 +26,7 @@ The shapes are based on meshes, so you can do anything with them that you can do
 
 ## Requirements
 
-loveshape requires LÖVE 11.4 and has no other external dependencies.
+loveshape requires LÖVE 11.4+ and has no other external dependencies.
 
 ## Integration
 

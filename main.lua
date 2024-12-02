@@ -1,3 +1,5 @@
+-- LÖVE demo
+
 local loveshape = require("init")
 local loveunit = require("loveunit")
 
