@@ -33,7 +33,7 @@ local shapesDemo = {
     self.rounded = loveshape.RoundedRectangle.new(200, 100, 14, 4)
     self.rounded:setFillColor(Palette.PINK)
 
-    self.pill = loveshape.RoundedRectangle.new(200, 60, 30, 6)
+    self.pill = loveshape.RoundedRectangle.new(200, 60, 30)
     self.pill:setFillColor(Palette.ORANGE)
 
     self.bevel = loveshape.RoundedRectangle.new(200, 120, 20, 2)

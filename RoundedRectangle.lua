@@ -5,6 +5,11 @@ local Rectangle = require(BASE .. "Rectangle")
 local utils = require(BASE .. "utils")
 
 local HALF_PI = math.pi / 2
+local MIN_CORNER_POINTS = 4
+local MAX_CORNER_POINTS = 64
+-- Scaling factor for when corner points are computed automatically.
+-- The higher the value, the smoother the corners.
+local CORNER_RADIUS_FACTOR = 0.3
 
 --- Represents a rectangle with rounded corners.
 --- @class loveshape.RoundedRectangle: loveshape.Rectangle
@@ -17,10 +22,12 @@ local RoundedRectangle = utils.class("loveshape.RoundedRectangle", Rectangle)
 --- The corner radius should be smaller than the half width and the half height of the
 --- rectangle. If this is not the case, the corner radius is reduced automatically
 --- when the rectangle is drawn.
+---
+--- If `pointsPerCorner` is not specified, a default value is computed automatically.
 --- @param width number
 --- @param height number
 --- @param cornerRadius number
---- @param pointsPerCorner integer Number of points to represent a rounded corner
+--- @param pointsPerCorner? integer Number of points to represent a rounded corner
 --- @return loveshape.RoundedRectangle
 --- @nodiscard
 function RoundedRectangle.new(width, height, cornerRadius, pointsPerCorner)
@@ -33,11 +40,19 @@ end
 --- @param width number
 --- @param height number
 --- @param cornerRadius number
---- @param pointsPerCorner integer
+--- @param pointsPerCorner? integer
 --- @protected
 function RoundedRectangle:_init(width, height, cornerRadius, pointsPerCorner)
   assert(type(cornerRadius) == "number" and cornerRadius > 0)
-  assert(type(pointsPerCorner) == "number" and pointsPerCorner >= 2)
+
+  if pointsPerCorner then
+    assert(type(pointsPerCorner) == "number" and pointsPerCorner >= 2)
+  else
+    -- Compute points per corner automatically if not specified
+    pointsPerCorner = utils.clamp(
+      math.ceil(CORNER_RADIUS_FACTOR * cornerRadius), MIN_CORNER_POINTS, MAX_CORNER_POINTS
+    )
+  end
 
   Rectangle._init(self, pointsPerCorner * 4, width, height)
   self._cornerRadius = cornerRadius
