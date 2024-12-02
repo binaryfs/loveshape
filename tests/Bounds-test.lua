@@ -1,7 +1,7 @@
 local Bounds = require("Bounds")
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 
-local test = loveunit.newTestCase("Bounds")
+local test = lovecase.newTestSet("Bounds")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -88,3 +88,5 @@ test:group("addPoint()", function ()
     test:assertEqual({5, 15, 15, 25}, {bounds:unpack()})
   end)
 end)
+
+return test

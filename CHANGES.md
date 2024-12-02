@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Only update meshes in `Shape:setFillColor` and `Shape:setBorderColor` when a new color is set
 - Compute `pointsPerCorner` automatically if not specified in `RoundedRectangle.new`
 - Compute `pointsCount` automatically if not specified in `Circle.new` and `Ellipse.new`
+- Replace local loveunit module with lovecase for unit tests
 
 ## [1.1.0] - 2023-11-20
 

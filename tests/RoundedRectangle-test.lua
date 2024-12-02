@@ -1,7 +1,7 @@
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 local RoundedRectangle = require("RoundedRectangle")
 
-local test = loveunit.newTestCase("RoundedRectangle")
+local test = lovecase.newTestSet("RoundedRectangle")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -45,3 +45,5 @@ test:group("new()", function ()
     end)
   end)
 end)
+
+return test

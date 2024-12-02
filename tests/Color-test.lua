@@ -1,7 +1,7 @@
 local Color = require("Color")
-local loveunit = require("loveunit")
+local lovecase = require("libs.lovecase")
 
-local test = loveunit.newTestCase("Color")
+local test = lovecase.newTestSet("Color")
 
 test:group("type()", function ()
   test:run("should return the typename", function ()
@@ -60,3 +60,5 @@ test:group("equal()", function ()
     test:assertFalse(color1:equal(0, 0, 0))
   end)
 end)
+
+return test

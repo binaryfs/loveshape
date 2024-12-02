@@ -1,7 +1,7 @@
 -- LÖVE demo
 
 local loveshape = require("init")
-local loveunit = require("loveunit")
+local lovecaseAvailable, lovecase = pcall(require, "libs.lovecase")
 
 local Palette = {
   PURPLE = {137 / 255, 33 / 255, 194 / 255},
@@ -242,17 +242,21 @@ local demos = {
 local demoIndex = 1
 
 local function runUnitTests()
-  loveunit.runTestFiles("tests")
-  local success, report = loveunit.report()
+  local report = lovecase.newTestReport({ onlyFailures = true })
+  lovecase.runAllTestFiles("tests", true, nil, report)
 
-  if not success then
-    print(report)
+  if report:isFailed() then
+    print(report:printResults())
     error("Unit tests failed!")
   end
 end
 
 function love.load()
-  runUnitTests()
+  if lovecaseAvailable then
+    runUnitTests()
+  else
+    print("lovecase is not available - skipping unit tests")
+  end
 
   for index = 1, #demos do
     demos[index]:init()
