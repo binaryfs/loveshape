@@ -70,6 +70,7 @@ function Shape:setFillColor(r, g, b, a)
   if not self._fillColor:equal(r, g, b, a) then
     self._fillColor:set(r, g, b, a)
     self:_updateFillColor()
+    self:_updateEdgeColor()
   end
   return self
 end
