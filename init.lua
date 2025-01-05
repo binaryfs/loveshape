@@ -5,7 +5,7 @@ local BASE = (...):gsub("init$", ""):gsub("([^%.])$", "%1%.")
 local loveshape = {
   _NAME = "loveshape",
   _DESCRIPTION = "Drawable geometric primitives for the LÖVE framework.",
-  _VERSION = "1.2.0",
+  _VERSION = "1.2.1",
   _URL = "https://github.com/binaryfs/loveshape",
   _LICENSE = [[
     MIT License
