@@ -1,11 +1,12 @@
 local lovecase = require("libs.lovecase")
 local utils = require("utils")
 
-local test = lovecase.newTestSet("utils")
+local expect = lovecase.expect
+local suite = lovecase.newSuite("utils")
 
-test:group("clamp()", function ()
-  test:run("should clamp a value between a lower an an upper bound", function (value, min, max, result)
-    test:assertEqual(result, utils.clamp(value, min, max))
+suite:describe("clamp()", function ()
+  suite:test("should clamp a value between a lower an an upper bound", function (value, min, max, result)
+    expect.equal(result, utils.clamp(value, min, max))
   end, {
     {5, 10, 20, 10},
     {30, 10, 20, 20},
@@ -15,9 +16,9 @@ test:group("clamp()", function ()
   })
 end)
 
-test:group("almostEqual()", function ()
-  test:run("should determine if two numbers are almost equal", function (a, b, equal)
-    test:assertEqual(utils.almostEqual(a, b), equal)
+suite:describe("almostEqual()", function ()
+  suite:test("should determine if two numbers are almost equal", function (a, b, equal)
+    expect.equal(utils.almostEqual(a, b), equal)
   end, {
     {1, 1, true},
     {1, 2, false},
@@ -26,9 +27,9 @@ test:group("almostEqual()", function ()
   })
 end)
 
-test:group("vecLength()", function ()
-  test:run("should return the length of a vector", function (x, y, length)
-    test:assertAlmostEqual(length, utils.vecLength(x, y))
+suite:describe("vecLength()", function ()
+  suite:test("should return the length of a vector", function (x, y, length)
+    expect.almostEqual(length, utils.vecLength(x, y))
   end, {
     {10, 0, 10},
     {0, 10, 10},
@@ -38,21 +39,21 @@ test:group("vecLength()", function ()
   })
 end)
 
-test:group("vecNormalize()", function ()
-  test:run("should normalize a vector to unit length", function (x, y, nx, ny)
-    test:assertAlmostEqual({nx, ny}, {utils.vecNormalize(x, y)})
+suite:describe("vecNormalize()", function ()
+  suite:test("should normalize a vector to unit length", function (x, y, nx, ny)
+    expect.almostEqual({nx, ny}, {utils.vecNormalize(x, y)})
   end, {
     {10, 0, 1, 0},
     {0, 10, 0, 1},
   })
-  test:run("should normalize a vector to the specified length", function ()
-    test:assertAlmostEqual(4, utils.vecLength(utils.vecNormalize(10, 20, 4)))
+  suite:test("should normalize a vector to the specified length", function ()
+    expect.almostEqual(4, utils.vecLength(utils.vecNormalize(10, 20, 4)))
   end)
 end)
 
-test:group("vecEquals()", function ()
-  test:run("should determine if two vectors are equal", function (ax, ay, bx, by, equal)
-    test:assertEqual(utils.vecEquals(ax, ay, bx, by), equal)
+suite:describe("vecEquals()", function ()
+  suite:test("should determine if two vectors are equal", function (ax, ay, bx, by, equal)
+    expect.equal(utils.vecEquals(ax, ay, bx, by), equal)
   end, {
     {1, 2, 1, 2, true},
     {100.01, 0, 100.011, 0, false},
@@ -60,15 +61,15 @@ test:group("vecEquals()", function ()
   })
 end)
 
-test:group("computeVertexNormal()", function ()
+suite:describe("computeVertexNormal()", function ()
   -- ax, ay -> Start vertex of first edge
   -- bx, by -> Shared vertex of first and second edge
   -- cx, cy -> End vertex of second edge
   -- length -> Desired length of the normal
   -- nx, ny -> Expected normal
-  test:run("should compute the vertex normal", function (ax, ay, bx, by, cx, cy, length, nx, ny)
+  suite:test("should compute the vertex normal", function (ax, ay, bx, by, cx, cy, length, nx, ny)
     local normalX, normalY = utils.computeVertexNormal(ax, ay, bx, by, cx, cy)
-    test:assertAlmostEqual({nx, ny}, {normalX * length, normalY * length})
+    expect.almostEqual({nx, ny}, {normalX * length, normalY * length})
   end, {
     -- a--b--c
     {0, 0, 10, 0, 20, 0, 5, 0, -5},
@@ -91,44 +92,44 @@ test:group("computeVertexNormal()", function ()
   })
 end)
 
-test:group("nextDistinctVertexPosition()", function ()
-  test:run("should return the next distinct vertex position", function (vertex, x, y)
+suite:describe("nextDistinctVertexPosition()", function ()
+  suite:test("should return the next distinct vertex position", function (vertex, x, y)
     local mesh = love.graphics.newMesh(4, "fan")
     mesh:setVertexAttribute(1, 1, 0, 0)
     mesh:setVertexAttribute(2, 1, 0, 0)
     mesh:setVertexAttribute(3, 1, 10, 0)
     mesh:setVertexAttribute(4, 1, 5, 10)
-    test:assertEqual({x, y}, {utils.nextDistinctVertexPosition(mesh, vertex)})
+    expect.equal({x, y}, {utils.nextDistinctVertexPosition(mesh, vertex)})
   end, {
     {1, 10, 0},
     {2, 10, 0},
     {3, 5, 10},
     {4, 0, 0},
   })
-  test:run("should return the shared postion if no vertex is distinct", function ()
+  suite:test("should return the shared postion if no vertex is distinct", function ()
     local mesh = love.graphics.newMesh(4, "fan")
-    test:assertEqual({0, 0}, {utils.nextDistinctVertexPosition(mesh, 1)})
+    expect.equal({0, 0}, {utils.nextDistinctVertexPosition(mesh, 1)})
   end)
 end)
 
-test:group("previousDistinctVertexPosition()", function ()
-  test:run("should return the previous distinct vertex position", function (vertex, x, y)
+suite:describe("previousDistinctVertexPosition()", function ()
+  suite:test("should return the previous distinct vertex position", function (vertex, x, y)
     local mesh = love.graphics.newMesh(4, "fan")
     mesh:setVertexAttribute(1, 1, 0, 0)
     mesh:setVertexAttribute(2, 1, 0, 0)
     mesh:setVertexAttribute(3, 1, 10, 0)
     mesh:setVertexAttribute(4, 1, 5, 10)
-    test:assertEqual({x, y}, {utils.previousDistinctVertexPosition(mesh, vertex)})
+    expect.equal({x, y}, {utils.previousDistinctVertexPosition(mesh, vertex)})
   end, {
     {1, 5, 10},
     {2, 5, 10},
     {3, 0, 0},
     {4, 10, 0},
   })
-  test:run("should return the shared postion if no vertex is distinct", function ()
+  suite:test("should return the shared postion if no vertex is distinct", function ()
     local mesh = love.graphics.newMesh(4, "fan")
-    test:assertEqual({0, 0}, {utils.previousDistinctVertexPosition(mesh, 1)})
+    expect.equal({0, 0}, {utils.previousDistinctVertexPosition(mesh, 1)})
   end)
 end)
 
-return test
+return suite
