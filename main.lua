@@ -242,11 +242,10 @@ local demos = {
 local demoIndex = 1
 
 local function runUnitTests()
-  local report = lovecase.newTestReport({ onlyFailures = true })
-  lovecase.runAllTestFiles("tests", true, nil, report)
+  local report = lovecase.runAllTestFiles("tests", true)
+  print(report:getResults())
 
-  if report:isFailed() then
-    print(report:printResults())
+  if report:hasErrors() then
     error("Unit tests failed!")
   end
 end
